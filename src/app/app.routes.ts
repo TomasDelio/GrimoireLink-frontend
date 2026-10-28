@@ -4,11 +4,11 @@ import { Home } from './pages/home/home';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { MainLayout } from './layout/main-layout/main-layout';
-import { Personajes } from './pages/personajes/personajes';
-import { Campanias } from './pages/campanias/campanias';
+import { Characters } from './pages/characters/characters';
+import { campaign, Campanias } from './pages/campaign/campaign';
 import { Diario } from './pages/diario/diario';
-import { Monstruos } from './pages/monstruos/monstruos';
-import { Encuentros } from './pages/encuentros/encuentros';
+import { Monsters } from './pages/monsters/monsters';
+import { Encounters } from './pages/encounters/encounters';
 
 export const routes: Routes = [
      { path: '', component: Home, pathMatch: 'full' },
@@ -19,11 +19,11 @@ export const routes: Routes = [
     component: MainLayout,
     children: [
       { path: 'inicio', component: Dashboard },
-      { path: 'personajes', component: Personajes },
-      { path: 'campanias', component: Campanias },
+      { path: 'personajes', component: Characters },
+      { path: 'campaign', component: campaign },
       { path: 'diario', component: Diario },
-      { path: 'monstruos', component: Monstruos },
-      { path: 'encuentros', component: Encuentros },
+      { path: 'monstruos', component: Monsters },
+      { path: 'encuentros', component: Encounters },
     ],
   },
   { path: '**', redirectTo: '' },
