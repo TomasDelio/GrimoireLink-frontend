@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
-import { Campaign } from '../../pages/campaign/campaign';
+import { inject, Injectable, Service } from '@angular/core';
+import { Campaign } from '../../models/campaign';
 import { Observable } from 'rxjs';
 
-@Service()
+@Injectable({
+  providedIn: 'root'
+})
 export class CampaignService {
 
     private readonly http = inject(HttpClient);
