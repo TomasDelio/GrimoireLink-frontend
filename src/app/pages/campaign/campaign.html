@@ -7,6 +7,44 @@
     </div>
   </header>
 
+
+  <div class="campaign-filters">
+
+    <div class="filter-field">
+      <label for="search">Buscar campana</label>
+      <input
+        id="search"
+        type="text"
+        placeholder="Buscar por nombre..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </div>
+
+    <div class="filter-field">
+      <label for="status">Estado</label>
+      <select
+        id="status"
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="selectedStatus.set($event)"
+      >
+        <option value="ALL">Todas</option>
+        <option value="ACTIVE">Activas</option>
+        <option value="PAUSED">Pausadas</option>
+        <option value="FINISHED">Finalizadas</option>
+      </select>
+    </div>
+
+    <button
+      type="button"
+      class="clear-button"
+      (click)="clearFilters()"
+    >
+      Limpiar
+    </button>
+
+  </div>
+
   @if (isLoading()) {
 
     <div class="campaign-message" role="status">
@@ -18,7 +56,11 @@
     <div class="campaign-message campaign-error" role="alert">
       <p>{{ errorMessage() }}</p>
 
-      <button type="button" (click)="loadCampaigns()">
+      <button
+        type="button"
+        class="clear-button"
+        (click)="loadCampaigns()"
+      >
         Reintentar
       </button>
     </div>
@@ -27,22 +69,43 @@
 
     <div class="campaign-message">
       <h2>Todavia no tienes campanas</h2>
+
       <p>
         Cuando crees o te unas a una campana,
         aparecera aqui.
       </p>
     </div>
 
+  } @else if (filteredCampaigns().length === 0) {
+
+    <div class="campaign-message">
+      <h2>Sin resultados</h2>
+
+      <p>
+        No encontramos campanas que coincidan
+        con tu busqueda.
+      </p>
+
+      <button
+        type="button"
+        class="clear-button"
+        (click)="clearFilters()"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+
   } @else {
 
     <div class="campaign-list">
 
-      @for (campaign of campaigns(); track campaign.publicId) {
+      @for (campaign of filteredCampaigns(); track campaign.publicId) {
 
         <article class="campaign-card">
 
           <div class="campaign-info">
             <h2>{{ campaign.name }}</h2>
+
             <p>
               {{ campaign.description || 'Sin descripcion' }}
             </p>
@@ -60,6 +123,7 @@
         </article>
 
       }
+
     </div>
   }
 </section>
