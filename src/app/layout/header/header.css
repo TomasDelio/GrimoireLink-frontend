@@ -68,6 +68,32 @@
   color: var(--color-text-muted);
 }
 
+.logout-button,
+.login-link {
+  padding: var(--space-1) var(--space-3);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--color-text);
+
+  font-family: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logout-button:hover,
+.login-link:hover {
+  background: var(--color-hover);
+}
+
+.logout-button:focus-visible,
+.login-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 @media (max-width: 600px) {
   .topbar {
     min-height: 58px;
