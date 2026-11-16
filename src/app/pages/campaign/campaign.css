@@ -1,0 +1,130 @@
+:host {
+  display: block;
+}
+
+.campaign-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.campaign-header h1 {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+  font-family: var(--font-title);
+  font-size: 26px;
+}
+
+.campaign-header p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.campaign-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.campaign-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.campaign-info {
+  min-width: 0;
+}
+
+.campaign-info h2 {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+  font-size: 16px;
+}
+
+.campaign-info p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.campaign-status {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.campaign-status.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.campaign-status.paused {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.campaign-status.finished {
+  background: var(--color-active);
+  color: var(--color-text-muted);
+}
+
+.campaign-message {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.campaign-message h2 {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+  font-size: 18px;
+}
+
+.campaign-message p {
+  margin: 0 0 var(--space-3);
+  font-size: 12px;
+}
+
+.campaign-error {
+  color: #b91c1c;
+}
+
+.campaign-error button {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.campaign-error button:hover {
+  background: var(--color-hover);
+}
+@media (max-width: 760px) {
+  .campaign-card {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: var(--space-3);
+  }
+
+  .campaign-header h1 {
+    font-size: 22px;
+  }
+
+  .campaign-message {
+    padding: var(--space-4);
+  }
+}
