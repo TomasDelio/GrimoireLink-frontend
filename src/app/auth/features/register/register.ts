@@ -1,10 +1,88 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { email, form, FormField, FormRoot, minLength, required } from '@angular/forms/signals';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../data-access/auth-service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-  imports: [],
+  imports: [FormField, FormRoot, RouterLink],
   selector: 'app-register',
   styleUrl: './register.css',
   templateUrl: './register.html',
 })
 export class Register {
+
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  errorMessage = signal('');
+
+  registerModel = signal({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  registerForm = form(
+    this.registerModel,
+    (path) => {
+      required(path.name, {
+        message: 'Ingresa tu nombre'
+      });
+
+      minLength(path.name, 3, {
+        message: 'El nombre debe tener al menos 3 caracteres'
+      });
+
+      required(path.email, {
+        message: 'Ingresa tu correo'
+      });
+
+      email(path.email, {
+        message: 'El correo no es valido'
+      });
+
+      required(path.password, {
+        message: 'Ingresa tu contrasena'
+      });
+
+      minLength(path.password, 8, {
+        message: 'La contrasena debe tener al menos 8 caracteres'
+      });
+    },
+    {
+      submission: {
+        action: async (field) => {
+          this.errorMessage.set('');
+
+          const data = field().value();
+
+          try {
+            await this.authService.register(data);
+            await this.router.navigateByUrl('/inicio');
+          } catch (error) {
+            this.errorMessage.set(this.getErrorMessage(error));
+          }
+        }
+      }
+    }
+  );
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 409) {
+        return 'El correo ya esta registrado';
+      }
+
+      if (error.status === 400) {
+        return 'Revisa los datos ingresados';
+      }
+
+      if (error.status === 0) {
+        return 'No se pudo conectar con el servidor';
+      }
+    }
+
+    return 'Ocurrio un error. Intenta nuevamente';
+  }
 }

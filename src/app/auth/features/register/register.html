@@ -1,1 +1,156 @@
-<p>register works!</p>
+<div class="auth-page">
+
+  <header class="auth-header">
+    <a class="brand" routerLink="/">GrimoireLink</a>
+
+    <p class="auth-header-link">
+      ¿Ya tienes una cuenta?
+      <a class="outline-button" routerLink="/login">
+        Iniciar sesion
+      </a>
+    </p>
+  </header>
+
+  <main class="auth-main">
+
+    <section class="auth-hero">
+      <p class="eyebrow">Tu mesa. Tu historia.</p>
+
+      <h1>Tu proxima aventura comienza aqui.</h1>
+
+      <p class="lead">
+        Crea tu cuenta y comparte campanas,
+        personajes y aventuras con tu grupo.
+      </p>
+
+      <div class="notebook">
+        <div class="notebook-header">
+          <span>Cuaderno de campana</span>
+          <span>D&amp;D 5e</span>
+        </div>
+
+        <ol class="notebook-list">
+          <li>
+            <span class="notebook-number">01</span>
+            Personajes y fichas
+          </li>
+          <li>
+            <span class="notebook-number">02</span>
+            Campanas y diario compartido
+          </li>
+          <li>
+            <span class="notebook-number">03</span>
+            Encuentros y herramientas del DM
+          </li>
+        </ol>
+      </div>
+
+      <p class="hero-note">
+        Un espacio compartido para el grupo.
+        Un espacio privado para quien dirige la aventura.
+      </p>
+    </section>
+
+    <section class="auth-card">
+      <h2>Crear una cuenta</h2>
+
+      <p class="subtitle">
+        Registrate para comenzar tu aventura.
+      </p>
+
+      <form [formRoot]="registerForm">
+
+        <div class="field">
+          <label for="name">Nombre</label>
+
+          <input
+            id="name"
+            type="text"
+            autocomplete="name"
+            placeholder="Tu nombre"
+            [formField]="registerForm.name"
+          />
+
+          @if (registerForm.name().touched() &&
+               registerForm.name().invalid()) {
+            @for (error of registerForm.name().errors(); track error.kind) {
+              <p class="field-error">{{ error.message }}</p>
+            }
+          }
+        </div>
+
+        <div class="field">
+          <label for="email">Correo electronico</label>
+
+          <input
+            id="email"
+            type="email"
+            autocomplete="email"
+            placeholder="correo@ejemplo.com"
+            [formField]="registerForm.email"
+          />
+
+          @if (registerForm.email().touched() &&
+               registerForm.email().invalid()) {
+            @for (error of registerForm.email().errors(); track error.kind) {
+              <p class="field-error">{{ error.message }}</p>
+            }
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">Contrasena</label>
+
+          <input
+            id="password"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Minimo 8 caracteres"
+            [formField]="registerForm.password"
+          />
+
+          @if (registerForm.password().touched() &&
+               registerForm.password().invalid()) {
+            @for (error of registerForm.password().errors(); track error.kind) {
+              <p class="field-error">{{ error.message }}</p>
+            }
+          }
+        </div>
+
+        @if (errorMessage()) {
+          <p class="form-error" role="alert">
+            {{ errorMessage() }}
+          </p>
+        }
+
+        <button
+          class="primary-button"
+          type="submit"
+          [disabled]="registerForm().submitting()"
+        >
+          {{ registerForm().submitting()
+             ? 'Registrando...'
+             : 'Crear cuenta' }}
+        </button>
+      </form>
+
+      <hr />
+
+      <p class="switch-auth">
+        ¿Ya tienes una cuenta?
+        <a routerLink="/login">Iniciar sesion</a>
+      </p>
+
+      <p class="card-note">
+        Al registrarte podras crear o unirte a una
+        campana y comenzar tu aventura.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="auth-footer">
+    Mesa y relato - Herramientas para jugar en compania
+  </footer>
+
+</div>

@@ -6,3 +6,8 @@ export interface Campaign {
   inviteCode: number | null;
   status: 'ACTIVE' | 'PAUSED' | 'FINISHED';
 }
+
+export interface CampaignRequest {
+  name: string;
+  description: string;
+}
