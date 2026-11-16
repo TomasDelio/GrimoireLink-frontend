@@ -15,14 +15,17 @@
     <span class="brand-name">GrimoireLink</span>
   </a>
 
-  <div class="user-info">
+    <div class="user-info">
+    @if (auth.isAuthenticated()) {
+      <span class="user-avatar">U</span>
+      <span class="user-name">Usuario</span>
 
-    <span class="user-avatar">
-      U
-    </span>
-
-    <span class="user-name">Usuario</span>
-
+      <button type="button" class="logout-button" (click)="logout()">
+        Cerrar sesión
+      </button>
+    } @else {
+      <a class="login-link" routerLink="/login">Iniciar sesión</a>
+    }
   </div>
 
 </header>
