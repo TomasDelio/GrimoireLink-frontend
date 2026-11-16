@@ -1,8 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CampaignService } from '../../core/services/campaign-service';
 import { Campaign as CampaignModel } from '../../models/campaign';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 @Component({
-  imports: [],
+  imports: [FormsModule,RouterLink],
   selector: 'app-campaign',
   styleUrl: './campaign.css',
   templateUrl: './campaign.html',
@@ -47,4 +49,31 @@ export class Campaign implements OnInit{
         return 'Desconocido';
     }
   }
+
+
+searchTerm = signal('');
+selectedStatus = signal('ALL');
+
+filteredCampaigns = computed(() => {
+  const search = this.searchTerm().trim().toLowerCase();
+  const status = this.selectedStatus();
+
+  return this.campaigns().filter(campaign => {
+    const matchesName = campaign.name
+      .toLowerCase()
+      .includes(search);
+
+    const matchesStatus =
+      status === 'ALL' || campaign.status === status;
+
+    return matchesName && matchesStatus;
+  });
+});
+
+clearFilters(): void {
+  this.searchTerm.set('');
+  this.selectedStatus.set('ALL');
+}
+
+
 }

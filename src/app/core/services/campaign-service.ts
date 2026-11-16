@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, Service } from '@angular/core';
-import { Campaign } from '../../models/campaign';
 import { Observable } from 'rxjs';
+import { Campaign, CampaignRequest } from '../../models/campaign';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,10 @@ export class CampaignService {
 
   getCampaignById(id: string): Observable<Campaign> {
     return this.http.get<Campaign>(`${this.apiUrl}/${id}`);
+  }
+
+  createCampaign(data: CampaignRequest): Observable<Campaign> {
+    return this.http.post<Campaign>(this.apiUrl, data);
   }
 
 }

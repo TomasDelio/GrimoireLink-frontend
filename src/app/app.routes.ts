@@ -36,6 +36,10 @@ export const routes: Routes = [
             loadComponent: () => import('./pages/campaign/campaign').then((m) => m.Campaign),
           },
           {
+            path: 'campanias/nueva',
+            loadComponent: () =>import('./pages/campaign/campaign-form/campaign-form').then((m) => m.CampaignForm),
+          },
+          {
             path: 'diario',
             loadComponent: () => import('./pages/notes/notes').then((m) => m.Notes),
           },
