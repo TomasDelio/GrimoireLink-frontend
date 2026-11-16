@@ -1,5 +1,20 @@
 <section class="encounters-page">
-  <h1>Encuentros</h1>
 
+  <h1>Encuentros</h1>
+  <!-- ESTOS SON LOS DADOS RAPIDOS-->
   <app-dice-roller></app-dice-roller>
+
+  <!--
+    Aca Mate - Conecta el ID de encuentro seleccionado
+    a EnemyManager una vez que se implemente la selección de encuentros
+  -->
+
+  <!--y aca EnemyManager está preparado para recibir un UUID de encuentro real
+    No utilices IDs de encuentro definidos de forma fija (hardcodeada)-->
+
+
+  <app-enemy-manager
+    [encounterId]="selectedEncounterId"
+  ></app-enemy-manager>
+  
 </section>
