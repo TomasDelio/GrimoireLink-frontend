@@ -7,7 +7,6 @@
     </div>
   </header>
 
-
   <div class="campaign-filters">
 
     <div class="filter-field">
@@ -100,30 +99,33 @@
     <div class="campaign-list">
 
       @for (campaign of filteredCampaigns(); track campaign.publicId) {
-
+       
         <article class="campaign-card">
-
           <div class="campaign-info">
             <h2>{{ campaign.name }}</h2>
-
             <p>
               {{ campaign.description || 'Sin descripcion' }}
             </p>
           </div>
 
-          <span
+          <div class="campaign-actions">
+            <span
             class="campaign-status"
             [class.active]="campaign.status === 'ACTIVE'"
             [class.paused]="campaign.status === 'PAUSED'"
             [class.finished]="campaign.status === 'FINISHED'"
-          >
+            >
             {{ getStatusLabel(campaign.status) }}
           </span>
-
-        </article>
-
-      }
-
-    </div>
+          <a
+          [routerLink]="['/campanias', campaign.publicId]"
+          class="detail-button"
+          >
+          Ver detalle
+        </a>
+      </div>
+    </article>
   }
+</div>
+}
 </section>
