@@ -1,24 +1,33 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth-service';
 import { environment } from '../../../environments/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-
   const authService = inject(AuthService);
+  const router = inject(Router);
   const token = authService.getToken();
 
   const isApiRequest = req.url.startsWith(`${environment.apiURL}/`);
   const isAuthRequest = req.url.startsWith(`${environment.apiURL}/auth/`);
 
-  if (token && isApiRequest && !isAuthRequest) {
-    const authRequest = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    return next(authRequest);
+  if (!isApiRequest || isAuthRequest) {
+    return next(req);
   }
-  return next(req);
+
+  const request = token
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
+
+  return next(request).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        authService.logout();
+        router.navigateByUrl('/login');
+      }
+      return throwError(() => error);
+    }),
+  );
 };
