@@ -1,0 +1,82 @@
+
+<section class="dice-roller">
+
+  <div class="dice-header">
+    <h2>Dados rapidos</h2>
+    <p>Selecciona tus dados y realiza una tirada.</p>
+  </div>
+
+  <div class="dice-list">
+    @for (dice of diceTypes; track dice) {
+      <button
+        type="button"
+        class="dice-button"
+        [class.active]="selectedDice === dice"
+        [attr.aria-pressed]="selectedDice === dice"
+        (click)="selectDice(dice)"
+      >
+        d{{ dice }}
+      </button>
+    }
+  </div>
+
+  <div class="dice-options">
+
+    <div class="dice-field">
+      <label for="quantity">Cantidad</label>
+      <input
+        type="number"
+        id="quantity"
+        name="quantity"
+        min="1"
+        max="20"
+        step="1"
+        [(ngModel)]="quantity"
+      />
+    </div>
+
+    <div class="dice-field">
+      <label for="modifier">Modificador</label>
+      <input
+        type="number"
+        id="modifier"
+        name="modifier"
+        min="-20"
+        max="20"
+        step="1"
+        [(ngModel)]="modifier"
+      />
+    </div>
+
+  </div>
+
+  <button
+    type="button"
+    class="roll-button"
+    (click)="rollDice()"
+  >
+    Lanzar dados
+  </button>
+
+  @if (total !== null) {
+    <div class="dice-result" aria-live="polite">
+
+      <span>Resultado total</span>
+      <strong>{{ total }}</strong>
+
+      <p>
+        Dados:
+        @for (result of results; track $index) {
+          {{ result }}{{ !$last ? ' + ' : '' }}
+        }
+
+        @if (modifier !== 0) {
+          {{ modifier > 0 ? '+' : '-' }}
+          {{ modifier < 0 ? -modifier : modifier }}
+        }
+      </p>
+
+    </div>
+  }
+
+</section>
