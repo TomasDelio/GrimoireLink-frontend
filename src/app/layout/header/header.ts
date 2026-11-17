@@ -6,6 +6,12 @@ import { UserResponse } from '../../auth/data-access/auth.model';
 import { FormsModule } from '@angular/forms';
 import { CampaignContextService } from '../../campaigns/data-access/campaign-context-service';
 
+
+interface ProfileAvatar {
+  id: string;
+  name: string;
+}
+
 @Component({
   imports: [RouterLink,FormsModule],
   selector: 'app-header',
@@ -13,20 +19,46 @@ import { CampaignContextService } from '../../campaigns/data-access/campaign-con
   templateUrl: './header.html',
 })
 export class Header implements OnInit{
-  
- protected readonly auth = inject(AuthService);
+
+  protected readonly auth = inject(AuthService);
   private readonly userService = inject(UserService);
-  private readonly router = inject(Router);
   private readonly campaignContext = inject(CampaignContextService);
+  private readonly router = inject(Router);
+
+  readonly avatars: ProfileAvatar[] = [
+    { id: 'wizard', name: 'Mago' },
+    { id: 'witch', name: 'Bruja' },
+    { id: 'warlock', name: 'Brujo' },
+    { id: 'assassin', name: 'Asesino' },
+    { id: 'rogue', name: 'Picaro' },
+    { id: 'archer', name: 'Arquero' },
+    { id: 'elf', name: 'Elfa' },
+    { id: 'dwarf', name: 'Enano' },
+    { id: 'dwarf-king', name: 'Rey enano' },
+    { id: 'priest', name: 'Sacerdote' },
+    { id: 'knight', name: 'Caballero' },
+    { id: 'vampire', name: 'Vampiro' },
+    { id: 'orc', name: 'Orco' },
+    { id: 'goblin', name: 'Goblin' },
+    { id: 'kenku', name: 'Kenku' }
+  ];
 
   user = signal<UserResponse | null>(null);
 
   nickname = signal('');
   nicknameInput = signal('');
+
+  selectedAvatar = signal('wizard');
+  avatarInput = signal('wizard');
+
   isEditing = signal(false);
 
   displayName = computed(() =>
     this.nickname() || this.user()?.name || 'Usuario'
+  );
+
+  avatarUrl = computed(() =>
+    this.getAvatarUrl(this.selectedAvatar())
   );
 
   ngOnInit(): void {
@@ -44,7 +76,19 @@ export class Header implements OnInit{
           `grimoirelink:nickname:${user.publicId}`
         );
 
+        const savedAvatar = localStorage.getItem(
+          `grimoirelink:avatar:${user.publicId}`
+        );
+
         this.nickname.set(savedName || '');
+
+        const avatarExists = this.avatars.some(
+          avatar => avatar.id === savedAvatar
+        );
+
+        this.selectedAvatar.set(
+          avatarExists && savedAvatar ? savedAvatar : 'wizard'
+        );
       },
       error: () => {
         this.user.set(null);
@@ -52,12 +96,27 @@ export class Header implements OnInit{
     });
   }
 
+  getAvatarUrl(avatarId: string): string {
+    return `/avatars/${avatarId}.png`;
+  }
+
   openEditor(): void {
     this.nicknameInput.set(this.displayName());
+    this.avatarInput.set(this.selectedAvatar());
     this.isEditing.set(true);
   }
 
-  saveNickname(): void {
+  selectAvatar(avatarId: string): void {
+    const exists = this.avatars.some(
+      avatar => avatar.id === avatarId
+    );
+
+    if (exists) {
+      this.avatarInput.set(avatarId);
+    }
+  }
+
+  saveProfile(): void {
     const name = this.nicknameInput().trim();
     const user = this.user();
 
@@ -70,7 +129,13 @@ export class Header implements OnInit{
       name
     );
 
+    localStorage.setItem(
+      `grimoirelink:avatar:${user.publicId}`,
+      this.avatarInput()
+    );
+
     this.nickname.set(name);
+    this.selectedAvatar.set(this.avatarInput());
     this.isEditing.set(false);
   }
 
@@ -80,10 +145,13 @@ export class Header implements OnInit{
 
   logout(): void {
     this.auth.logout();
+    this.campaignContext.reset();
+
     this.user.set(null);
     this.nickname.set('');
+    this.selectedAvatar.set('wizard');
     this.isEditing.set(false);
-    this.campaignContext.reset();
+
     this.router.navigate(['/']);
   }
 
