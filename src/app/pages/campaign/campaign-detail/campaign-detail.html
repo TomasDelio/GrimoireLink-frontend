@@ -2,7 +2,7 @@
 
   <header class="detail-header">
     <a routerLink="/campanias" class="back-link">
-      Volver a campanas
+      Volver a campañas
     </a>
   </header>
 
@@ -50,6 +50,62 @@
         </p>
       </div>
     </article>
+
+  @if (isDungeonMaster()) {
+  <section class="detail-card status-editor">
+
+    <h2>Estado de la campana</h2>
+
+    <p class="status-description">
+      Como Dungeon Master, puedes cambiar
+      el estado de tu campana.
+    </p>
+
+    <div class="status-field">
+
+      <label for="campaignStatus">
+        Seleccionar estado
+      </label>
+
+        <select
+          id="campaignStatus"
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="selectedStatus.set($event)"
+          [disabled]="isSaving()"
+        >
+          <option value="ACTIVE">Activa</option>
+          <option value="PAUSED">Pausada</option>
+          <option value="FINISHED">Finalizada</option>
+        </select>
+
+      </div>
+
+      @if (statusError()) {
+        <p class="status-error" role="alert">
+          {{ statusError() }}
+        </p>
+     }
+
+      @if (statusSuccess()) {
+        <p class="status-success" role="status">
+         {{ statusSuccess() }}
+        </p>
+      }
+
+      <button
+        type="button"
+        class="status-button"
+        [disabled]="isSaving() ||
+                selectedStatus() === currentCampaign.status"
+        (click)="saveStatus()"
+      >
+        {{ isSaving() ? 'Guardando...' : 'Guardar estado' }}
+      </button>
+
+    </section>
+
+  }
+
 
     <section class="members-section">
 

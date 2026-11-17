@@ -5,6 +5,7 @@ import { CampaignService } from '../../../core/services/campaign-service';
 import { CampaignRequest } from '../../../models/campaign';
 import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CampaignContextService } from '../../../campaigns/data-access/campaign-context-service';
 
 @Component({
   imports: [FormsModule, RouterLink],
@@ -16,6 +17,7 @@ export class CampaignForm {
 
   private readonly campaignService = inject(CampaignService);
   private readonly router = inject(Router);
+  private readonly campaignContext = inject(CampaignContextService);
 
   campaign: CampaignRequest = {
     name: '',
@@ -47,6 +49,7 @@ export class CampaignForm {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: () => {
+          this.campaignContext.load();
           this.router.navigate(['/campanias']);
         },
         error: (error: HttpErrorResponse) => {

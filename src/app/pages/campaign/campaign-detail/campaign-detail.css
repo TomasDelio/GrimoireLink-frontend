@@ -215,6 +215,81 @@
   cursor: pointer;
 }
 
+
+.status-editor {
+  align-items: flex-start;
+}
+
+.status-description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.status-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.status-field label {
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-field select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 12px;
+}
+
+.status-field select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.status-button {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.status-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-error,
+.status-success {
+  margin: 0;
+  font-size: 12px;
+}
+
+.status-error {
+  color: #b91c1c;
+}
+
+.status-success {
+  color: #166534;
+}
+
 @media (max-width: 760px) {
   .campaign-heading,
   .members-header {

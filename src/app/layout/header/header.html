@@ -1,4 +1,3 @@
-
 <header class="topbar">
 
   <a
@@ -7,25 +6,94 @@
     aria-label="Ir al inicio de GrimoireLink"
   >
     <img
-  src="/android-chrome-192x192.png"
-  alt="Logo de GrimoireLink"
-  class="brand-logo"
-/>
+      src="/android-chrome-192x192.png"
+      alt="Logo de GrimoireLink"
+      class="brand-logo"
+    />
 
     <span class="brand-name">GrimoireLink</span>
   </a>
 
-    <div class="user-info">
-    @if (auth.isAuthenticated()) {
-      <span class="user-avatar">U</span>
-      <span class="user-name">Usuario</span>
+  <div class="user-info">
 
-      <button type="button" class="logout-button" (click)="logout()">
-        Cerrar sesión
+    @if (auth.isAuthenticated()) {
+
+      <button
+        type="button"
+        class="profile-button"
+        (click)="openEditor()"
+        aria-label="Editar nombre de usuario"
+      >
+        <span class="user-avatar">
+          {{ displayName().charAt(0).toUpperCase() }}
+        </span>
+
+        <span class="user-name">
+          {{ displayName() }}
+        </span>
       </button>
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="logout()"
+      >
+        Cerrar sesion
+      </button>
+
+      @if (isEditing()) {
+        <div class="profile-editor">
+
+          <h3>Mi perfil</h3>
+
+          <label for="nickname">
+            Nombre de usuario
+          </label>
+
+          <input
+            id="nickname"
+            type="text"
+            maxlength="24"
+            placeholder="Tu nombre de usuario"
+            [ngModel]="nicknameInput()"
+            (ngModelChange)="nicknameInput.set($event)"
+          />
+
+          <p>
+            Entre 3 y 24 caracteres.
+          </p>
+
+          <div class="profile-actions">
+            <button
+              type="button"
+              class="cancel-button"
+              (click)="cancelEditing()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              class="save-button"
+              [disabled]="nicknameInput().trim().length < 3 ||
+                          nicknameInput().trim().length > 24"
+              (click)="saveNickname()"
+            >
+              Guardar
+            </button>
+          </div>
+
+        </div>
+      }
+
     } @else {
-      <a class="login-link" routerLink="/login">Iniciar sesión</a>
+
+      <a class="login-link" routerLink="/login">
+        Iniciar sesion
+      </a>
+
     }
+
   </div>
 
 </header>
