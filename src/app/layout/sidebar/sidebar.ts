@@ -1,8 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
+import { CampaignContextService } from '../../campaigns/data-access/campaign-context-service';
+import { Campaign } from '../../models/campaign';
+
 type ViewMode='Dungeon Master'| 'Player';
+
 @Component({
   imports: [RouterLink,RouterLinkActive,FormsModule],
   selector: 'app-sidebar',
@@ -11,14 +15,27 @@ type ViewMode='Dungeon Master'| 'Player';
 })
 export class Sidebar implements OnInit{
 
+  readonly campaignContext = inject(CampaignContextService);
   selectedView: ViewMode = 'Dungeon Master';
 
   ngOnInit(): void {
-    this.selectedView = 'Dungeon Master';
+    this.campaignContext.load();
   }
 
   isDungeonMaster(): boolean {
     return this.selectedView === 'Dungeon Master';
   }
 
+  getStatusLabel(status: Campaign['status']): string {
+    switch (status) {
+      case 'ACTIVE':
+        return 'Activa';
+      case 'PAUSED':
+        return 'Pausada';
+      case 'FINISHED':
+        return 'Finalizada';
+      default:
+        return 'Desconocido';
+    }
+  }
 }

@@ -26,6 +26,9 @@ export class CampaignService {
 
   getCampaignMembers(id: string): Observable<CampaignMember[]> {
     return this.http.get<CampaignMember[]>(`${this.apiUrl}/${id}/members`);
+  }  
+  updateCampaignStatus(id: string,status: Campaign['status']): Observable<Campaign> {
+    return this.http.patch<Campaign>(`${this.apiUrl}/${id}`,{ status });
   }
 
 }

@@ -1,4 +1,3 @@
-
 <aside class="sidebar" aria-label="Navegación principal">
 
   <div class="nav-section-label">
@@ -45,34 +44,100 @@
 
   </nav>
 
+
 <section class="current-campaign" aria-labelledby="campaign-title">
 
-  <div class="campaign-header">
-    <span class="campaign-icon" aria-hidden="true">
-    </span>
+  <h3 id="campaign-title" class="campaign-title">
+    Campana actual
+  </h3>
 
-    <h3 id="campaign-title">
-      Campaña actual
-    </h3>
-  </div>
-
-  <div class="campaign-content">
-
-    <p class="campaign-name">
-      Sin campaña seleccionada
-    </p>
+  @if (campaignContext.isLoading()) {
 
     <p class="campaign-description">
-      Elige una campaña para comenzar tu aventura.
+      Cargando campanas...
     </p>
 
-  </div>
+  } @else if (campaignContext.errorMessage()) {
 
-  <a
-    class="campaign-button"
-    routerLink="/campanias"
-  >
-    Ver campañas
+    <p class="campaign-description" role="alert">
+      {{ campaignContext.errorMessage() }}
+    </p>
+
+    <button
+      type="button"
+      class="campaign-button"
+      (click)="campaignContext.load()"
+    >
+      Reintentar
+    </button>
+
+  } @else {
+
+    @if (campaignContext.selectedCampaign(); as campaign) {
+
+      <div class="campaign-details">
+
+        <p class="campaign-name">
+          {{ campaign.name }}
+        </p>
+
+        <p class="campaign-description">
+          Estado: {{ getStatusLabel(campaign.status) }}
+        </p>
+
+        <a
+          class="campaign-button"
+          [routerLink]="['/campanias', campaign.publicId]"
+        >
+          Ver detalle
+        </a>
+
+      </div>
+
+    } @else {
+
+      <p class="campaign-description">
+        Sin campana seleccionada.
+      </p>
+
+    }
+
+    @if (campaignContext.campaigns().length > 0) {
+
+      <label for="currentCampaign" class="campaign-label">
+        Seleccionar campana
+      </label>
+
+      <select
+        id="currentCampaign"
+        class="campaign-select"
+        [ngModel]="campaignContext.selectedId() ?? ''"
+        (ngModelChange)="campaignContext.selectCampaign($event)"
+      >
+        <option value="">Seleccionar campana</option>
+
+        @for (
+          campaign of campaignContext.campaigns();
+          track campaign.publicId
+        ) {
+          <option [value]="campaign.publicId">
+            {{ campaign.name }}
+          </option>
+        }
+      </select>
+
+    } @else {
+
+      <p class="campaign-description">
+        Crea o unete a una campana para comenzar.
+      </p>
+
+    }
+
+  }
+
+  <a class="campaign-button" routerLink="/campanias">
+    Ver campanas
   </a>
 
 </section>
