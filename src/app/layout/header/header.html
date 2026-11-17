@@ -22,11 +22,14 @@
         type="button"
         class="profile-button"
         (click)="openEditor()"
-        aria-label="Editar nombre de usuario"
+        aria-label="Personalizar perfil"
+        [attr.aria-expanded]="isEditing()"
       >
-        <span class="user-avatar">
-          {{ displayName().charAt(0).toUpperCase() }}
-        </span>
+        <img
+          class="user-avatar"
+          [src]="avatarUrl()"
+          alt="Avatar de usuario"
+        />
 
         <span class="user-name">
           {{ displayName() }}
@@ -42,7 +45,8 @@
       </button>
 
       @if (isEditing()) {
-        <div class="profile-editor">
+
+        <section class="profile-editor">
 
           <h3>Mi perfil</h3>
 
@@ -53,17 +57,51 @@
           <input
             id="nickname"
             type="text"
+            name="nickname"
             maxlength="24"
             placeholder="Tu nombre de usuario"
             [ngModel]="nicknameInput()"
             (ngModelChange)="nicknameInput.set($event)"
           />
 
-          <p>
+          <p class="profile-hint">
             Entre 3 y 24 caracteres.
           </p>
 
+          <label>Seleccionar avatar</label>
+
+          <div
+            class="avatar-grid"
+            role="group"
+            aria-label="Avatares disponibles"
+          >
+            @for (avatar of avatars; track avatar.id) {
+
+              <button
+                type="button"
+                class="avatar-option"
+                [class.selected]="avatarInput() === avatar.id"
+                [attr.aria-pressed]="avatarInput() === avatar.id"
+                [attr.aria-label]="avatar.name"
+                [title]="avatar.name"
+                (click)="selectAvatar(avatar.id)"
+              >
+                <img
+                  [src]="getAvatarUrl(avatar.id)"
+                  [alt]="avatar.name"
+                />
+              </button>
+
+            }
+          </div>
+
+          <p class="profile-hint">
+            Avatar seleccionado:
+            {{ avatarInput() }}
+          </p>
+
           <div class="profile-actions">
+
             <button
               type="button"
               class="cancel-button"
@@ -77,13 +115,15 @@
               class="save-button"
               [disabled]="nicknameInput().trim().length < 3 ||
                           nicknameInput().trim().length > 24"
-              (click)="saveNickname()"
+              (click)="saveProfile()"
             >
-              Guardar
+              Guardar cambios
             </button>
+
           </div>
 
-        </div>
+        </section>
+
       }
 
     } @else {
