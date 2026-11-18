@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { MonsterReference } from '../../../core/models/monster';
+import { Monster, MonsterReference } from '../../../core/models/monster';
 import { MonsterService } from '../../../core/services/monster-service';
 import { EncounterService } from '../../data-access/encounter-service';
 import { Encounter } from '../../data-access/encounter.model';
@@ -139,6 +139,24 @@ export class EnemyManager implements OnInit {
     }
   }
 
+    damage(monster: Monster, amount: number) {
+    if (!this.isValidAmount(amount)) {
+      this.errorMessage.set('Ingresá una cantidad entera mayor a 0.');
+      return;
+    }
+
+    this.updateHp(monster.publicId, Math.max(monster.currentHp - amount, 0));
+  }
+
+  heal(monster: Monster, amount: number) {
+    if (!this.isValidAmount(amount)) {
+      this.errorMessage.set('Ingresá una cantidad entera mayor a 0.');
+      return;
+    }
+
+    this.updateHp(monster.publicId, Math.min(monster.currentHp + amount, monster.maxHp));
+  }
+
   async removeMonster(monsterId: string) {
     const encounterId = this.encounterId();
 
@@ -158,6 +176,10 @@ export class EnemyManager implements OnInit {
     } finally {
       this.isSaving.set(false);
     }
+  }
+
+    private isValidAmount(amount: number) {
+    return Number.isInteger(amount) && amount > 0;
   }
 
   private getErrorMessage(error: unknown, fallback: string) {
