@@ -9,10 +9,11 @@ import { FormsModule } from '@angular/forms';
 import { CampaignContextService } from '../../../campaigns/data-access/campaign-context-service';
 import { UserService } from '../../../auth/data-access/user-service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CampaignEncounters } from '../../../encounters/features/campaign-encounters/campaign-encounters';
 
 
 @Component({
-  imports: [RouterLink, DatePipe,FormsModule],
+  imports: [RouterLink, DatePipe,FormsModule, CampaignEncounters],
   selector: 'app-campaign-detail',
   styleUrl: './campaign-detail.css',
   templateUrl: './campaign-detail.html',

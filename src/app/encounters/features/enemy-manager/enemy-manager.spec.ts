@@ -1,17 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Encounters } from './encuentros';
+import { EnemyManager } from './enemy-manager';
 
-describe('Encounters', () => {
-  let component: Encounters;
-  let fixture: ComponentFixture<Encounters>;
+describe('EnemyManager', () => {
+  let component: EnemyManager;
+  let fixture: ComponentFixture<EnemyManager>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Encounters]
-    })
-      .compileComponents();
+      imports: [EnemyManager],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(Encounters);
+    fixture = TestBed.createComponent(EnemyManager);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
