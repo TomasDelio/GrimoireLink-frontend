@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { DiceRoller } from '../../../shared/components/dice-roller/dice-roller';
 import { EnemyManager } from '../enemy-manager/enemy-manager';
+import { CampaignContextService } from '../../../campaigns/data-access/campaign-context-service';
 
 @Component({
   imports: [DiceRoller, EnemyManager],
@@ -11,8 +12,27 @@ import { EnemyManager } from '../enemy-manager/enemy-manager';
   templateUrl: './encounter-detail.html',
 })
 export class EncounterDetail {
+  
+  readonly campaignContext = inject(CampaignContextService);
   private readonly route = inject(ActivatedRoute);
-  private readonly queryParams = toSignal(this.route.queryParamMap);
 
-  encounterId = computed(() => this.queryParams()?.get('encounterId') ?? null);
+  private readonly queryParams = toSignal(
+    this.route.queryParamMap,
+    { initialValue: this.route.snapshot.queryParamMap }
+  );
+
+  readonly encounterId = computed(() =>
+    this.queryParams().get('encounterId')
+  );
+
+  readonly campaignId = computed(() =>
+    this.queryParams().get('campaignId')
+  );
+
+  readonly canEditEnemies = computed(() =>
+    !!this.campaignId() &&
+    this.campaignContext.selectedId() === this.campaignId() &&
+    this.campaignContext.isDungeonMasterView()
+  );
+
 }

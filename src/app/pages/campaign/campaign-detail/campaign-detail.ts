@@ -75,12 +75,33 @@ export class CampaignDetail implements OnInit{
         );
 
         this.isDungeonMaster.set(isDm);
-      },
-      error: () => {
-        this.errorMessage.set(
-          'No se pudo cargar la informacion de la campana.'
-        );
-      }
+      },      
+        error: (error: HttpErrorResponse) => {
+          console.error('Error al cargar la campana:', {
+            url: error.url,
+            status: error.status,
+            message: error.message
+          });
+
+          if (error.status === 401) {
+            this.errorMessage.set(
+              'Tu sesion ha expirado. Inicia sesion nuevamente.'
+            );
+          } else if (error.status === 403) {
+            this.errorMessage.set(
+              'No tienes permisos para consultar esta campana.'
+            );
+          } else if (error.status === 404) {
+            this.errorMessage.set(
+              'No se encontro la campana solicitada.'
+            );
+          } else {
+            this.errorMessage.set(
+              'No se pudo cargar la informacion de la campana.'
+            );
+          }
+        }
+
     });
   }
 

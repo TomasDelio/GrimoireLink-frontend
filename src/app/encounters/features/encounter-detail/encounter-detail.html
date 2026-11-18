@@ -1,11 +1,22 @@
 <section class="encounters-page">
+
   <h1>Encuentros</h1>
 
   <app-dice-roller />
 
   @if (encounterId(); as encounterId) {
-    <app-enemy-manager [encounterId]="encounterId" />
+
+    <app-enemy-manager
+      [encounterId]="encounterId"
+      [canEdit]="canEditEnemies()"
+    />
+
   } @else {
-    <p class="encounter-empty">Elegí un encuentro desde el detalle de una de tus campañas.</p>
+
+    <p class="encounter-empty">
+      Elige un encuentro desde el detalle de una campana.
+    </p>
+
   }
+
 </section>

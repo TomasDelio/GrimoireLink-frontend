@@ -15,3 +15,13 @@ export interface MonsterReference {
   name: string;
   url: string;
 }
+
+export interface MonsterCatalogDetail {
+  name: string;
+  maxHp: number;
+  currentHp: number;
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  challengeRating: number;
+}

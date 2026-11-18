@@ -1,20 +1,38 @@
 <section class="campaign-detail-page">
+
   <header class="detail-header">
-    <a routerLink="/campanias" class="back-link"> Volver a campañas </a>
+    <a routerLink="/campanias" class="back-link">
+      Volver a campañas
+    </a>
   </header>
 
   @if (isLoading()) {
-    <div class="detail-message" role="status">Cargando informacion de la campana...</div>
+
+    <div class="detail-message" role="status">
+      Cargando informacion de la campaña...
+    </div>
+
   } @else if (errorMessage()) {
+
     <div class="detail-message detail-error" role="alert">
+
       <p>{{ errorMessage() }}</p>
 
-      <button type="button" (click)="retry()">Reintentar</button>
+      <button type="button" (click)="retry()">
+        Reintentar
+      </button>
+
     </div>
+
   } @else if (campaign(); as currentCampaign) {
+
     <div class="campaign-heading">
+
       <div>
-        <p class="section-label">DETALLE DE CAMPANA</p>
+        <p class="section-label">
+          DETALLE DE CAMPAÑA
+        </p>
+
         <h1>{{ currentCampaign.name }}</h1>
       </div>
 
@@ -26,29 +44,68 @@
       >
         {{ getStatusLabel(currentCampaign.status) }}
       </span>
+
     </div>
 
     <article class="detail-card">
+
       <h2>Informacion general</h2>
 
       <div class="detail-field">
+
         <h3>Descripcion</h3>
+
         <p>
           {{ currentCampaign.description || 'Sin descripcion' }}
         </p>
+
       </div>
+
     </article>
 
     @if (isDungeonMaster()) {
+
+      @if (currentCampaign.inviteCode !== null) {
+
+        <section class="detail-card">
+
+          <h2>Invitar jugadores</h2>
+
+          <div class="detail-field">
+
+            <h3>Codigo de invitacion</h3>
+
+            <p>
+              <strong>
+                {{ currentCampaign.inviteCode.toString().padStart(6, '0') }}
+              </strong>
+            </p>
+
+            <p>
+              Comparte este codigo con los jugadores
+              que quieras invitar a tu campaña.
+            </p>
+
+          </div>
+
+        </section>
+
+      }
+
       <section class="detail-card status-editor">
-        <h2>Estado de la campana</h2>
+
+        <h2>Estado de la campaña</h2>
 
         <p class="status-description">
-          Como Dungeon Master, puedes cambiar el estado de tu campana.
+          Como Dungeon Master, puedes cambiar
+          el estado de tu campaña.
         </p>
 
         <div class="status-field">
-          <label for="campaignStatus"> Seleccionar estado </label>
+
+          <label for="campaignStatus">
+            Seleccionar estado
+          </label>
 
           <select
             id="campaignStatus"
@@ -60,6 +117,7 @@
             <option value="PAUSED">Pausada</option>
             <option value="FINISHED">Finalizada</option>
           </select>
+
         </div>
 
         @if (statusError()) {
@@ -77,12 +135,15 @@
         <button
           type="button"
           class="status-button"
-          [disabled]="isSaving() || selectedStatus() === currentCampaign.status"
+          [disabled]="isSaving() ||
+            selectedStatus() === currentCampaign.status"
           (click)="saveStatus()"
         >
           {{ isSaving() ? 'Guardando...' : 'Guardar estado' }}
         </button>
+
       </section>
+
     }
 
     <app-campaign-encounters
@@ -91,42 +152,71 @@
     />
 
     <section class="members-section">
+
       <div class="members-header">
+
         <div>
-          <h2>Miembros de la campana</h2>
-          <p>Jugadores y Dungeon Masters que participan.</p>
+          <h2>Miembros de la campaña</h2>
+
+          <p>
+            Jugadores y Dungeon Masters que participan.
+          </p>
         </div>
 
-        <span class="member-count"> {{ members().length }} miembros </span>
+        <span class="member-count">
+          {{ members().length }} miembros
+        </span>
+
       </div>
 
       @if (members().length === 0) {
-        <div class="detail-message">Todavia no hay miembros registrados.</div>
+
+        <div class="detail-message">
+          Todavia no hay miembros registrados.
+        </div>
+
       } @else {
+
         <div class="members-list">
+
           @for (member of members(); track member.publicId) {
+
             <article class="member-card">
+
               <div class="member-avatar">
                 {{ member.name.charAt(0).toUpperCase() }}
               </div>
 
               <div class="member-info">
+
                 <h3>{{ member.name }}</h3>
+
                 <p>{{ member.email }}</p>
 
                 <span class="join-date">
                   Se unio:
                   {{ member.joinDate | date: 'dd/MM/yyyy' }}
                 </span>
+
               </div>
 
-              <span class="member-role" [class.dm]="member.role === 'DUNGEON_MASTER'">
+              <span
+                class="member-role"
+                [class.dm]="member.role === 'DUNGEON_MASTER'"
+              >
                 {{ getRoleLabel(member.role) }}
               </span>
+
             </article>
+
           }
+
         </div>
+
       }
+
     </section>
+
   }
+
 </section>

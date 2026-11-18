@@ -128,15 +128,18 @@
               >
                 {{ statusLabels[encounter.encounterStatus] ?? encounter.encounterStatus }}
               </span>
-            }
+            }        
+                <a
+                  class="secondary-button"
+                  routerLink="/encuentros"
+                  [queryParams]="{
+                    encounterId: encounter.publicId,
+                    campaignId: campaignId()
+                  }"
+                >
+                  Abrir
+                </a>
 
-            <a
-              class="secondary-button"
-              routerLink="/encuentros"
-              [queryParams]="{ encounterId: encounter.publicId }"
-            >
-              Abrir
-            </a>
           </div>
         </li>
       }
