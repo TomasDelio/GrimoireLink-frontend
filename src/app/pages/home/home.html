@@ -1,1 +1,5 @@
-<p>home works!</p>
+@if (isAuthenticated()) {
+  <p>Inicio.....</p>
+} @else {
+  <app-home-public />
+}
