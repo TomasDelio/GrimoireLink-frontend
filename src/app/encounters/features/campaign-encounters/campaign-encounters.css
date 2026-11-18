@@ -94,7 +94,9 @@
 }
 
 .field textarea {
-  resize: vertical;
+  height: 96px;
+  resize: none;
+  overflow-y: auto;
 }
 
 .field-error,

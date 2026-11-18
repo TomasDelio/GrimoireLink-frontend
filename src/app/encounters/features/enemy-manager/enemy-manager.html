@@ -68,21 +68,31 @@
             <p>HP: {{ monster.currentHp }} / {{ monster.maxHp }}</p>
           </div>
 
-          <div class="enemy-actions">
+                    <div class="enemy-actions">
+            <input
+              #hpAmount
+              class="hp-amount"
+              type="number"
+              min="1"
+              value="1"
+              aria-label="Cantidad de puntos de golpe"
+              [disabled]="isSaving()"
+            />
+
             <button
               type="button"
               [disabled]="isSaving() || monster.currentHp <= 0"
-              (click)="updateHp(monster.publicId, monster.currentHp - 1)"
+              (click)="damage(monster, hpAmount.valueAsNumber)"
             >
-              -1 HP
+              Daño
             </button>
 
             <button
               type="button"
               [disabled]="isSaving() || monster.currentHp >= monster.maxHp"
-              (click)="updateHp(monster.publicId, monster.currentHp + 1)"
+              (click)="heal(monster, hpAmount.valueAsNumber)"
             >
-              +1 HP
+              Curar
             </button>
 
             <button
