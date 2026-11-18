@@ -55,7 +55,7 @@ export const routes: Routes = [
           },
           {
             path: 'encuentros',
-            loadComponent: () => import('./pages/encounters/encounters').then((m) => m.Encounters),
+           loadComponent: () => import('./encounters/features/encounter-detail/encounter-detail').then((m) => m.EncounterDetail),
           },
         ],
       },
