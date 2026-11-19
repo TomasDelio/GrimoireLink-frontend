@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, pattern, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { CampaignService } from '../../../core/services/campaign-service';
+import { CampaignService } from '../../data-access/campaign-service';
 import { CampaignContextService } from '../../data-access/campaign-context-service';
 
 @Component({

@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { CampaignContextService } from '../../campaigns/data-access/campaign-context-service';
-import { Campaign } from '../../models/campaign';
+import { Campaign } from '../../campaigns/data-access/campaign.model';
 
 type ViewMode='Dungeon Master'| 'Player';
 

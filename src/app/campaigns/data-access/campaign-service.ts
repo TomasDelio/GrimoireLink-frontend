@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable} from '@angular/core';
 import { Observable } from 'rxjs';
-import { Campaign, CampaignRequest } from '../../models/campaign';
-import { CampaignMember } from '../../models/campaign-member';
+import { Campaign, CampaignMember, CampaignRequest } from './campaign.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
