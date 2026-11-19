@@ -44,13 +44,13 @@ export const routes: Routes = [
           {
             path: 'campanias',
             loadComponent: () =>
-              import('./pages/campaign/campaign')
-                .then(m => m.Campaign),
+              import('./campaigns/features/campaign-list/campaign-list')
+                .then(m => m.CampaignList),
           },
           {
             path: 'campanias/nueva',
             loadComponent: () =>
-              import('./pages/campaign/campaign-form/campaign-form')
+              import('./campaigns/features/campaign-form/campaign-form')
                 .then(m => m.CampaignForm),
           },
           {
@@ -62,7 +62,7 @@ export const routes: Routes = [
           {
             path: 'campanias/:publicId',
             loadComponent: () =>
-              import('./pages/campaign/campaign-detail/campaign-detail')
+              import('./campaigns/features/campaign-detail/campaign-detail')
                 .then(m => m.CampaignDetail),
           },
           {

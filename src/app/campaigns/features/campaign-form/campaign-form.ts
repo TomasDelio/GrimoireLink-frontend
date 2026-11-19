@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { CampaignService } from '../../../core/services/campaign-service';
-import { CampaignRequest } from '../../../models/campaign';
+import { CampaignService } from '../../data-access/campaign-service';
+import { CampaignRequest } from '../../data-access/campaign.model';
 import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CampaignContextService } from '../../../campaigns/data-access/campaign-context-service';
+import { CampaignContextService } from '../../data-access/campaign-context-service';
 
 @Component({
   imports: [FormsModule, RouterLink],
