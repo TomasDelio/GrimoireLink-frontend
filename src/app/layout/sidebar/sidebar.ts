@@ -14,16 +14,15 @@ type ViewMode='Dungeon Master'| 'Player';
   templateUrl: './sidebar.html',
 })
 export class Sidebar implements OnInit{
-
+  
   readonly campaignContext = inject(CampaignContextService);
-  selectedView: ViewMode = 'Dungeon Master';
 
   ngOnInit(): void {
     this.campaignContext.load();
   }
 
-  isDungeonMaster(): boolean {
-    return this.selectedView === 'Dungeon Master';
+  changeView(): void {
+    this.campaignContext.changeView();
   }
 
   getStatusLabel(status: Campaign['status']): string {

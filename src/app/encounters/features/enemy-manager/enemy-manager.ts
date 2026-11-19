@@ -1,14 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  OnInit,
-  signal,
-  untracked,
-} from '@angular/core';
+import {Component,computed,effect,inject,input,OnInit,signal,untracked,} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { Monster, MonsterReference } from '../../../core/models/monster';
@@ -22,31 +13,38 @@ import { Encounter } from '../../data-access/encounter.model';
   templateUrl: './enemy-manager.html',
   styleUrl: './enemy-manager.css',
 })
-export class EnemyManager implements OnInit {
+export class EnemyManager {
+ 
   private readonly monsterService = inject(MonsterService);
   private readonly encounterService = inject(EncounterService);
 
-  encounterId = input<string | null>(null);
+  readonly encounterId = input<string | null>(null);
+  readonly canEdit = input(false);
 
-  catalog = signal<MonsterReference[]>([]);
-  encounter = signal<Encounter | null>(null);
+  readonly catalog = signal<MonsterReference[]>([]);
+  readonly encounter = signal<Encounter | null>(null);
 
-  searchTerm = signal('');
-  selectedMonster = signal<MonsterReference | null>(null);
+  readonly searchTerm = signal('');
+  readonly selectedMonster = signal<MonsterReference | null>(null);
 
-  isLoading = signal(false);
-  isSaving = signal(false);
-  errorMessage = signal('');
+  readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
+  readonly errorMessage = signal('');
 
-  filteredMonsters = computed(() => {
+  readonly filteredMonsters = computed(() => {
     const search = this.searchTerm().trim().toLowerCase();
 
     return this.catalog()
-      .filter((monster) => monster.name.toLowerCase().includes(search))
+      .filter(monster =>
+        monster.name.toLowerCase().includes(search)
+      )
       .slice(0, 20);
   });
 
   constructor() {
+
+    // Load the selected encounter.
+
     effect(() => {
       const encounterId = this.encounterId();
 
@@ -58,45 +56,69 @@ export class EnemyManager implements OnInit {
         }
       });
     });
-  }
 
-  ngOnInit() {
-    this.loadCatalog();
-  }
+    // Load the catalog only when editing is available.
 
-  loadCatalog() {
-    this.monsterService.getMonsters().subscribe({
-      next: (monsters) => this.catalog.set(monsters),
-      error: () => this.errorMessage.set('No se pudo cargar el catálogo de monstruos.'),
+    effect(() => {
+      if (this.canEdit()) {
+        untracked(() => this.loadCatalog());
+      }
     });
   }
 
-  async loadEncounter(encounterId: string) {
+  loadCatalog(): void {
+    this.monsterService.getMonsters().subscribe({
+      next: monsters => {
+        this.catalog.set(monsters);
+      },
+      error: () => {
+        this.errorMessage.set(
+          'No se pudo cargar el catalogo de monstruos.'
+        );
+      }
+    });
+  }
+
+  async loadEncounter(encounterId: string): Promise<void> {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
     try {
-      const encounter = await firstValueFrom(this.encounterService.getById(encounterId));
+      const encounter = await firstValueFrom(
+        this.encounterService.getById(encounterId)
+      );
 
       if (this.encounterId() === encounterId) {
         this.encounter.set(encounter);
       }
     } catch {
-      this.errorMessage.set('No se pudo cargar el encuentro.');
+      this.errorMessage.set(
+        'No se pudo cargar el encuentro.'
+      );
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  selectMonster(monster: MonsterReference) {
+  selectMonster(monster: MonsterReference): void {
+    if (!this.canEdit()) {
+      return;
+    }
+
     this.selectedMonster.set(monster);
   }
 
-  async addMonster() {
+  async addMonster(): Promise<void> {
     const monster = this.selectedMonster();
     const encounterId = this.encounterId();
 
-    if (!monster || !encounterId || !this.encounter() || this.isSaving()) {
+    if (
+      !this.canEdit() ||
+      !monster ||
+      !encounterId ||
+      !this.encounter() ||
+      this.isSaving()
+    ) {
       return;
     }
 
@@ -104,22 +126,35 @@ export class EnemyManager implements OnInit {
     this.errorMessage.set('');
 
     try {
-      this.encounter.set(
-        await firstValueFrom(this.encounterService.addMonster(encounterId, monster.index)),
+      const updated = await firstValueFrom(
+        this.encounterService.addMonster(
+          encounterId,
+          monster.index
+        )
       );
+
+      this.encounter.set(updated);
       this.selectedMonster.set(null);
       this.searchTerm.set('');
     } catch (error) {
-      this.errorMessage.set(this.getErrorMessage(error, 'No se pudo agregar el monstruo.'));
+      this.errorMessage.set(
+        this.getErrorMessage(error, 'No se pudo agregar el monstruo.')
+      );
     } finally {
       this.isSaving.set(false);
     }
   }
 
-  async updateHp(monsterId: string, newHp: number) {
+  async updateHp(monsterId: string, newHp: number): Promise<void> {
     const encounterId = this.encounterId();
 
-    if (!encounterId || !this.encounter() || this.isSaving() || !Number.isInteger(newHp)) {
+    if (
+      !this.canEdit() ||
+      !encounterId ||
+      !this.encounter() ||
+      this.isSaving() ||
+      !Number.isInteger(newHp)
+    ) {
       return;
     }
 
@@ -127,40 +162,72 @@ export class EnemyManager implements OnInit {
     this.errorMessage.set('');
 
     try {
-      this.encounter.set(
-        await firstValueFrom(this.encounterService.updateMonsterHp(encounterId, monsterId, newHp)),
+      const updated = await firstValueFrom(
+        this.encounterService.updateMonsterHp(
+          encounterId,
+          monsterId,
+          newHp
+        )
       );
+
+      this.encounter.set(updated);
     } catch (error) {
       this.errorMessage.set(
-        this.getErrorMessage(error, 'No se pudieron actualizar los puntos de golpe.'),
+        this.getErrorMessage(
+          error,
+          'No se pudieron actualizar los puntos de golpe.'
+        )
       );
     } finally {
       this.isSaving.set(false);
     }
   }
 
-    damage(monster: Monster, amount: number) {
-    if (!this.isValidAmount(amount)) {
-      this.errorMessage.set('Ingresá una cantidad entera mayor a 0.');
+  damage(monster: Monster, amount: number): void {
+    if (!this.canEdit()) {
       return;
     }
 
-    this.updateHp(monster.publicId, Math.max(monster.currentHp - amount, 0));
-  }
-
-  heal(monster: Monster, amount: number) {
     if (!this.isValidAmount(amount)) {
-      this.errorMessage.set('Ingresá una cantidad entera mayor a 0.');
+      this.errorMessage.set(
+        'Ingresa una cantidad entera mayor a 0.'
+      );
       return;
     }
 
-    this.updateHp(monster.publicId, Math.min(monster.currentHp + amount, monster.maxHp));
+    this.updateHp(
+      monster.publicId,
+      Math.max(monster.currentHp - amount, 0)
+    );
   }
 
-  async removeMonster(monsterId: string) {
+  heal(monster: Monster, amount: number): void {
+    if (!this.canEdit()) {
+      return;
+    }
+
+    if (!this.isValidAmount(amount)) {
+      this.errorMessage.set(
+        'Ingresa una cantidad entera mayor a 0.'
+      );
+      return;
+    }
+
+    this.updateHp(
+      monster.publicId,
+      Math.min(monster.currentHp + amount, monster.maxHp)
+    );
+  }
+
+  async removeMonster(monsterId: string): Promise<void> {
     const encounterId = this.encounterId();
 
-    if (!encounterId || !this.encounter() || this.isSaving()) {
+    if (
+      !this.canEdit() ||
+      !encounterId ||
+      !this.encounter() ||
+      this.isSaving()
+    ) {
       return;
     }
 
@@ -168,21 +235,28 @@ export class EnemyManager implements OnInit {
     this.errorMessage.set('');
 
     try {
-      this.encounter.set(
-        await firstValueFrom(this.encounterService.removeMonster(encounterId, monsterId)),
+      const updated = await firstValueFrom(
+        this.encounterService.removeMonster(
+          encounterId,
+          monsterId
+        )
       );
+
+      this.encounter.set(updated);
     } catch (error) {
-      this.errorMessage.set(this.getErrorMessage(error, 'No se pudo quitar el monstruo.'));
+      this.errorMessage.set(
+        this.getErrorMessage(error, 'No se pudo quitar el monstruo.')
+      );
     } finally {
       this.isSaving.set(false);
     }
   }
 
-    private isValidAmount(amount: number) {
+  private isValidAmount(amount: number): boolean {
     return Number.isInteger(amount) && amount > 0;
   }
 
-  private getErrorMessage(error: unknown, fallback: string) {
+  private getErrorMessage(error: unknown, fallback: string): string {
     if (error instanceof HttpErrorResponse && error.status === 403) {
       return 'Solo el Dungeon Master puede modificar el encuentro.';
     }

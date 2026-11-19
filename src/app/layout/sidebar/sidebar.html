@@ -1,4 +1,4 @@
-<aside class="sidebar" aria-label="Navegación principal">
+<aside class="sidebar" aria-label="Navegacion principal">
 
   <div class="nav-section-label">
     MI CUADERNO
@@ -19,7 +19,6 @@
       class="nav-link"
       routerLink="/personajes"
       routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
     >
       Personajes
     </a>
@@ -28,57 +27,56 @@
       class="nav-link"
       routerLink="/campanias"
       routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
     >
-      Campañas
+      Campanas
     </a>
 
     <a
       class="nav-link"
       routerLink="/diario"
       routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
     >
       Diario
     </a>
 
+    <a
+      class="nav-link"
+      routerLink="/monstruos"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Bestiario
+    </a>
+
   </nav>
 
+  <!-- Current Campaign -->
 
-<section class="current-campaign" aria-labelledby="campaign-title">
+  <section
+    class="current-campaign"
+    aria-labelledby="campaign-title"
+  >
 
-  <h3 id="campaign-title" class="campaign-title">
-    Campana actual
-  </h3>
+    <h3 id="campaign-title" class="campaign-title">
+      CAMPAÑA ACTUAL
+    </h3>
 
-  @if (campaignContext.isLoading()) {
+    @if (campaignContext.isLoading()) {
 
-    <p class="campaign-description">
-      Cargando campanas...
-    </p>
+      <p class="campaign-description">
+        Cargando campanas...
+      </p>
 
-  } @else if (campaignContext.errorMessage()) {
-
-    <p class="campaign-description" role="alert">
-      {{ campaignContext.errorMessage() }}
-    </p>
-
-    <button
-      type="button"
-      class="campaign-button"
-      (click)="campaignContext.load()"
-    >
-      Reintentar
-    </button>
-
-  } @else {
-
-    @if (campaignContext.selectedCampaign(); as campaign) {
+    } @else if (campaignContext.selectedCampaign(); as campaign) {
 
       <div class="campaign-details">
 
         <p class="campaign-name">
           {{ campaign.name }}
+        </p>
+
+        <p class="campaign-description">
+          {{ campaign.description }}
         </p>
 
         <p class="campaign-description">
@@ -89,7 +87,7 @@
           class="campaign-button"
           [routerLink]="['/campanias', campaign.publicId]"
         >
-          Ver detalle
+          Ver campana
         </a>
 
       </div>
@@ -100,12 +98,16 @@
         Sin campana seleccionada.
       </p>
 
+      <a class="campaign-button" routerLink="/campanias">
+        Ver campanas
+      </a>
+
     }
 
-    @if (campaignContext.campaigns().length > 0) {
+    @if (campaignContext.campaigns().length > 1) {
 
       <label for="currentCampaign" class="campaign-label">
-        Seleccionar campana
+        Cambiar campana
       </label>
 
       <select
@@ -124,99 +126,92 @@
             {{ campaign.name }}
           </option>
         }
+
       </select>
+
+    }
+
+  </section>
+
+  <!-- Current View -->
+
+  <section class="view-selector">
+
+    <h3 class="view-title">
+      VISTA ACTUAL
+    </h3>
+
+    @if (campaignContext.isRoleLoading()) {
+
+      <p class="view-description">
+        Cargando vista...
+      </p>
+
+    } @else if (campaignContext.currentView(); as view) {
+
+      <div class="view-details">
+
+        <span class="view-name">
+          {{ view }}
+        </span>
+
+        <span class="view-description">
+          @if (campaignContext.isDungeonMasterView()) {
+            Administracion de campana
+          } @else {
+            Vista de participante
+          }
+        </span>
+
+      </div>
+
+      @if (campaignContext.isRealDungeonMaster()) {
+
+        <button
+          type="button"
+          class="change-view-button"
+          (click)="changeView()"
+        >
+          <span aria-hidden="true">⇄</span>
+          Cambiar vista
+        </button>
+
+      }
 
     } @else {
 
-      <p class="campaign-description">
-        Crea o unete a una campana para comenzar.
+      <p class="view-description">
+        @if (campaignContext.roleError()) {
+          {{ campaignContext.roleError() }}
+        } @else {
+          Selecciona una campana.
+        }
       </p>
 
     }
 
-  }
+  </section>
 
-  <a class="campaign-button" routerLink="/campanias">
-    Ver campanas
-  </a>
+  <!-- DM Shortcuts -->
 
-</section>
+  @if (campaignContext.isDungeonMasterView()) {
 
-<section class="view-selector">
-
-  <h3 class="view-title">
-    VISTA ACTUAL
-  </h3>
-
-  <div class="view-info">
-
-    <div class="view-details">
-
-      <span class="view-name">
-        @if (isDungeonMaster()) {
-          Dungeon Master
-        } @else {
-          Jugador
-        }
-      </span>
-
-      <span class="view-description">
-        @if (isDungeonMaster()) {
-          Administracion de campaña
-        } @else {
-          Vista de participante
-        }
-      </span>
-
+    <div class="nav-section-label secondary-label">
+      HERRAMIENTAS DM
     </div>
 
-  </div>
+    <nav class="nav-list" aria-label="Herramientas DM">
 
-  <label for="viewMode" class="view-label">
-    Seleccionar vista
-  </label>
+      <a
+        class="nav-link"
+        routerLink="/dados"
+        routerLinkActive="active"
+      >
+        Dados rapidos
+      </a>
 
-  <select
-    id="viewMode"
-    name="viewMode"
-    class="view-select"
-    [(ngModel)]="selectedView"
-  >
-    <option value="Dungeon Master">
-      Dungeon Master
-    </option>
+    </nav>
 
-    <option value="player">
-      Jugador
-    </option>
-  </select>
+  }
 
-</section>
-@if (isDungeonMaster()) {
-
-  <div class="nav-section-label secondary-label">
-    DM
-  </div>
-
-  <nav class="nav-list" aria-label="Dungeon Master">
-
-    <a
-      class="nav-link"
-      routerLink="/monstruos"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      Monstruos
-    </a>
-
-    <a
-      class="nav-link"
-      routerLink="/encuentros"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      Encuentros
-    </a>
-
-  </nav>
-}
+</aside>

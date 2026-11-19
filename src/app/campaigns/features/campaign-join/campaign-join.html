@@ -1,0 +1,85 @@
+<section class="campaign-join-page">
+
+  <header class="join-header">
+    <a routerLink="/campanias" class="back-link">
+      Volver a campanas
+    </a>
+
+    <h1>Unirse a una campana</h1>
+
+    <p>
+      Ingresa el codigo de invitacion que
+      te compartio tu Dungeon Master.
+    </p>
+  </header>
+
+  <form
+    class="join-card"
+    (ngSubmit)="joinCampaign()"
+    novalidate
+  >
+
+    <div class="join-card-header">
+      <h2>Codigo de invitacion</h2>
+
+      <p>
+        Cada campana tiene un codigo unico
+        de seis digitos.
+      </p>
+    </div>
+
+    <div class="join-field">
+
+      <label for="inviteCode">
+        Codigo de la campana
+      </label>
+
+      <input
+        id="inviteCode"
+        name="inviteCode"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="6"
+        pattern="[0-9]{6}"
+        placeholder="000000"
+        required
+        [ngModel]="inviteCode()"
+        (ngModelChange)="onCodeChange($event)"
+        [disabled]="isSubmitting()"
+      />
+
+      <p class="field-hint">
+        Ingresa los seis numeros del codigo.
+      </p>
+
+    </div>
+
+    @if (errorMessage()) {
+      <p class="join-error" role="alert">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    <div class="join-actions">
+
+      <button
+        type="submit"
+        class="join-button"
+        [disabled]="!isValidCode() || isSubmitting()"
+      >
+        {{ isSubmitting() ? 'Uniendose...' : 'Unirse a campana' }}
+      </button>
+
+      <a
+        routerLink="/campanias"
+        class="cancel-button"
+      >
+        Cancelar
+      </a>
+
+    </div>
+
+  </form>
+
+</section>

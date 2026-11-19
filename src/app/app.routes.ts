@@ -35,15 +35,34 @@ export const routes: Routes = [
             loadComponent: () => import('./pages/characters/characters').then((m) => m.Characters),
           },
           {
+            path: 'personajes/:characterId',
+            loadComponent: () =>
+              import('./characters/features/character-sheet/character-sheet')
+                .then(m => m.CharacterSheet),
+          },  
+          {
             path: 'campanias',
-            loadComponent: () => import('./pages/campaign/campaign').then((m) => m.Campaign),
+            loadComponent: () =>
+              import('./pages/campaign/campaign')
+                .then(m => m.Campaign),
           },
           {
             path: 'campanias/nueva',
-            loadComponent: () =>import('./pages/campaign/campaign-form/campaign-form').then((m) => m.CampaignForm),
+            loadComponent: () =>
+              import('./pages/campaign/campaign-form/campaign-form')
+                .then(m => m.CampaignForm),
           },
           {
-            path: 'campanias/:publicId',loadComponent: () =>import('./pages/campaign/campaign-detail/campaign-detail').then((m) => m.CampaignDetail),
+            path: 'campanias/unirse',
+            loadComponent: () =>
+              import('./campaigns/features/campaign-join/campaign-join')
+                .then(m => m.CampaignJoin),
+          },
+          {
+            path: 'campanias/:publicId',
+            loadComponent: () =>
+              import('./pages/campaign/campaign-detail/campaign-detail')
+                .then(m => m.CampaignDetail),
           },
           {
             path: 'diario',
@@ -52,6 +71,12 @@ export const routes: Routes = [
           {
             path: 'monstruos',
             loadComponent: () => import('./pages/monsters/monsters').then((m) => m.Monsters),
+          },
+          {
+            path: 'dados',
+            loadComponent: () =>
+              import('./shared/components/dice-roller/dice-roller')
+                .then(m => m.DiceRoller),
           },
           {
             path: 'encuentros',
