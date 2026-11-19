@@ -57,6 +57,43 @@ export interface CharacterResponse {
   skills: CharacterSkill[];
   knowSpells: CharacterSpell[];
   featureIndices: string[];
+  items: CharacterItem[];
   spellSlots: SpellSlots | null;
   summary: string | null;
+}
+
+export interface CharacterItem {
+  publicId: string;
+  itemIndex: string;
+  name: string;
+  equipped: boolean;
+  quantity: number;
+}
+
+// Body de POST /api/characters?campaignId=
+export interface CharacterCreateRequest {
+  name: string;
+  raceIndex: string;
+  classIndex: string;
+  subclassIndex: string | null;
+  backgroundIndex: string;
+  level: number;
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  intelligence: number;
+  wisdom: number;
+  charisma: number;
+  gold: number;
+}
+
+// GET /api/catalog/races y /api/catalog/classes
+export interface CatalogItem {
+  index: string;
+  name: string;
+}
+
+// GET /api/catalog/backgrounds
+export interface BackgroundCatalogItem extends CatalogItem {
+  description: string;
 }

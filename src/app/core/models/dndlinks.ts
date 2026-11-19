@@ -37,6 +37,19 @@ export interface DndClass {
   name: string;
   hit_die: number;
   saving_throws: DndReference[];
+  proficiency_choices?: DndProficiencyChoice[];
+  subclasses?: DndReference[];
+  spellcasting?: { level: number; spellcasting_ability: DndReference };
+}
+
+export interface DndProficiencyChoice {
+  desc: string;
+  choose: number;
+  type: string;
+  from: {
+    option_set_type: string;
+    options: { option_type: string; item?: DndReference }[];
+  };
 }
 
 export interface DndMonster {
