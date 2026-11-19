@@ -1,103 +1,56 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, inject, signal } from '@angular/core';
+import { form, FormField, FormRoot, pattern, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { CampaignService } from '../../../core/services/campaign-service';
 import { CampaignContextService } from '../../data-access/campaign-context-service';
-import { finalize } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-  imports: [FormsModule, RouterLink],
+  imports: [FormField, FormRoot, RouterLink],
   selector: 'app-campaign-join',
   styleUrl: './campaign-join.css',
   templateUrl: './campaign-join.html',
 })
 export class CampaignJoin {
-
   private readonly campaignService = inject(CampaignService);
   private readonly campaignContext = inject(CampaignContextService);
   private readonly router = inject(Router);
 
-  readonly inviteCode = signal('');
-  readonly isSubmitting = signal(false);
-  readonly errorMessage = signal('');
+  errorMessage = signal('');
+  joinModel = signal({ inviteCode: '' });
 
-  readonly isValidCode = computed(() =>
-    /^[0-9]{6}$/.test(this.inviteCode())
+  joinForm = form(
+    this.joinModel,
+    (path) => {
+      required(path.inviteCode, { message: 'Ingresá el código de invitación' });
+      pattern(path.inviteCode, /^[0-9]{6}$/, { message: 'El código debe tener 6 dígitos' });
+    },
+    {
+      submission: {
+        action: async (field) => {
+          this.errorMessage.set('');
+          const inviteCode = field().value().inviteCode.trim();
+
+          try {
+            const campaign = await firstValueFrom(this.campaignService.joinCampaign(inviteCode));
+            this.campaignContext.load(campaign.publicId);
+            await this.router.navigate(['/campanias', campaign.publicId]);
+          } catch (error) {
+            this.errorMessage.set(this.getErrorMessage(error));
+          }
+        },
+      },
+    },
   );
 
-  onCodeChange(value: string): void {
-    const code = value.replace(/\D/g, '').slice(0, 6);
-
-    this.inviteCode.set(code);
-    this.errorMessage.set('');
-  }
-
-  joinCampaign(): void {
-    if (this.isSubmitting()) {
-      return;
+  private getErrorMessage(error: unknown) {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 400) return 'El código ingresado no es válido.';
+      if (error.status === 404) return 'No hay ninguna campaña con ese código.';
+      if (error.status === 409) return 'Ya sos parte de esta campaña.';
+      if (error.status === 0) return 'No se pudo conectar con el servidor.';
     }
-
-    if (!this.isValidCode()) {
-      this.errorMessage.set(
-        'El codigo debe contener 6 digitos'
-      );
-      return;
-    }
-
-    this.isSubmitting.set(true);
-    this.errorMessage.set('');
-
-    this.campaignService
-      .joinCampaign(this.inviteCode())
-      .pipe(finalize(() => this.isSubmitting.set(false)))
-      .subscribe({                
-        next: campaign => {
-          this.campaignContext.load(campaign.publicId);
-
-          this.router.navigate([
-            '/campanias',
-            campaign.publicId
-          ]);
-        },
-        error: (error: HttpErrorResponse) => {
-          switch (error.status) {
-            case 400:
-              this.errorMessage.set(
-                'El codigo ingresado no es valido.'
-              );
-              break;
-
-            case 404:
-              this.errorMessage.set(
-                'No se encontro ninguna campana con ese codigo.'
-              );
-              break;
-
-            case 409:
-              this.errorMessage.set(
-                'Ya perteneces a esta campana.'
-              );
-              break;
-
-            case 401:
-              this.errorMessage.set(
-                'Tu sesion ha expirado. Inicia sesion nuevamente.'
-              );
-              break;
-
-            case 403:
-              this.errorMessage.set(
-                'No tienes permiso para unirte a esta campana.'
-              );
-              break;
-
-            default:
-              this.errorMessage.set(
-                'No se pudo completar la solicitud. Intenta nuevamente.'
-              );
-          }
-        }
-      });
+    return 'No se pudo unir a la campaña. Intentá de nuevo.';
   }
 }
