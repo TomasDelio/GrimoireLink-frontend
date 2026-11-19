@@ -3,6 +3,7 @@ import { inject, Injectable} from '@angular/core';
 import { Observable } from 'rxjs';
 import { Campaign, CampaignRequest } from '../../models/campaign';
 import { CampaignMember } from '../../models/campaign-member';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { CampaignMember } from '../../models/campaign-member';
 export class CampaignService {
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/campaigns';
+  private readonly apiUrl = `${environment.apiURL}/campaigns`;
 
   getCampaigns(): Observable<Campaign[]> {
     return this.http.get<Campaign[]>(this.apiUrl);
