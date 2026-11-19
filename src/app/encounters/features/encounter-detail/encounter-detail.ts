@@ -6,7 +6,7 @@ import { EnemyManager } from '../enemy-manager/enemy-manager';
 import { CampaignContextService } from '../../../campaigns/data-access/campaign-context-service';
 
 @Component({
-  imports: [DiceRoller, EnemyManager],
+  imports: [DiceRoller, EnemyManager, CharacterManager],
   selector: 'app-encounter-detail',
   styleUrl: './encounter-detail.css',
   templateUrl: './encounter-detail.html',

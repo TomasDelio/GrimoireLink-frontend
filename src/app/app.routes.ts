@@ -25,10 +25,11 @@ export const routes: Routes = [
       {
         path: '',
         canActivate: [authGuard],
-        children: [
+        children: [          
           {
             path: 'inicio',
-            loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
+            loadComponent: () =>
+              import('./pages/home/home').then(m => m.Home),
           },
           {
             path: 'personajes',
@@ -66,7 +67,9 @@ export const routes: Routes = [
           },
           {
             path: 'diario',
-            loadComponent: () => import('./pages/notes/notes').then((m) => m.Notes),
+            loadComponent: () =>
+              import('./journal/features/journal-page/journal-page')
+                .then(m => m.JournalPage),
           },
           {
             path: 'monstruos',
