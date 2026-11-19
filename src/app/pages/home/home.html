@@ -1,5 +1,3 @@
-@if (isAuthenticated()) {
-  <p>Inicio.....</p>
-} @else {
-  <app-home-public />
-}
+<app-home-public
+  [isLoggedIn]="isAuthenticated()"
+/>

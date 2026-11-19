@@ -60,7 +60,8 @@
 /* Current Campaign */
 
 .current-campaign,
-.view-selector {
+.view-selector,
+.sidebar-summary {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -191,6 +192,35 @@
   line-height: 1;
 }
 
+/* Sidebar Summaries */
+
+.sidebar-summary {
+  margin-top: var(--space-3);
+  gap: var(--space-2);
+}
+
+.summary-meta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.summary-text {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.summary-text strong {
+  color: var(--color-text);
+}
+
 /* Responsive */
 
 @media (max-width: 760px) {
@@ -236,10 +266,12 @@
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
     padding: var(--space-2) var(--space-3);
+  } 
+  .current-campaign,
+  .view-selector,
+  .sidebar-summary {
+    min-width: 0;
+    margin-top: 0;
   }
 
-  .current-campaign,
-  .view-selector {
-    margin-top: var(--space-2);
-  }
 }
