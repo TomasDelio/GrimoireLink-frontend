@@ -25,10 +25,11 @@ export const routes: Routes = [
       {
         path: '',
         canActivate: [authGuard],
-        children: [
+        children: [          
           {
             path: 'inicio',
-            loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
+            loadComponent: () =>
+              import('./pages/home/home').then(m => m.Home),
           },
           {
             path: 'personajes',
@@ -50,13 +51,13 @@ export const routes: Routes = [
           {
             path: 'campanias',
             loadComponent: () =>
-              import('./pages/campaign/campaign')
-                .then(m => m.Campaign),
+              import('./campaigns/features/campaign-list/campaign-list')
+                .then(m => m.CampaignList),
           },
           {
             path: 'campanias/nueva',
             loadComponent: () =>
-              import('./pages/campaign/campaign-form/campaign-form')
+              import('./campaigns/features/campaign-form/campaign-form')
                 .then(m => m.CampaignForm),
           },
           {
@@ -68,12 +69,14 @@ export const routes: Routes = [
           {
             path: 'campanias/:publicId',
             loadComponent: () =>
-              import('./pages/campaign/campaign-detail/campaign-detail')
+              import('./campaigns/features/campaign-detail/campaign-detail')
                 .then(m => m.CampaignDetail),
           },
           {
             path: 'diario',
-            loadComponent: () => import('./pages/notes/notes').then((m) => m.Notes),
+            loadComponent: () =>
+              import('./journal/features/journal-page/journal-page')
+                .then(m => m.JournalPage),
           },
           {
             path: 'monstruos',

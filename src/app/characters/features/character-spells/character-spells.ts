@@ -5,8 +5,8 @@ import { firstValueFrom, Observable } from 'rxjs';
 
 import { DndSpellReference } from '../../../core/models/dndlinks';
 import { Dndlinkservice } from '../../../core/services/dndlinkservice';
-import { CharacterService } from '../data-access/character-service';
-import { CharacterResponse } from '../data-access/character.model';
+import { CharacterService } from '../../data-access/character-service';
+import { CharacterResponse } from '../../data-access/character.model';
 import { SpellPicker } from '../../ui/spell-picker/spell-picker';
 import { maxSpellLevel, slotsByLevel, spellLevelLabel } from '../../ui/spell-rules';
 

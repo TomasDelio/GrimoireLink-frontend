@@ -3,9 +3,8 @@ import { forkJoin, Subscription } from 'rxjs';
 
 import { AuthService } from '../../auth/data-access/auth-service';
 import { UserService } from '../../auth/data-access/user-service';
-import { CampaignService } from '../../core/services/campaign-service';
-import { Campaign } from '../../models/campaign';
-import { CampaignMember } from '../../models/campaign-member';
+import { CampaignService } from './campaign-service';
+import { Campaign, CampaignMember } from './campaign.model';
 
 type CampaignRole = CampaignMember['role'];
 

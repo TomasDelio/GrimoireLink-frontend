@@ -9,7 +9,7 @@
   @if (isLoading()) {
 
     <div class="detail-message" role="status">
-      Cargando informacion de la campaña...
+      Cargando información de la campaña...
     </div>
 
   } @else if (errorMessage()) {
@@ -49,14 +49,14 @@
 
     <article class="detail-card">
 
-      <h2>Informacion general</h2>
+      <h2>Información general</h2>
 
       <div class="detail-field">
 
-        <h3>Descripcion</h3>
+        <h3>Descripción</h3>
 
         <p>
-          {{ currentCampaign.description || 'Sin descripcion' }}
+          {{ currentCampaign.description || 'Sin descripción' }}
         </p>
 
       </div>
@@ -73,7 +73,7 @@
 
           <div class="detail-field">
 
-            <h3>Codigo de invitacion</h3>
+            <h3>Código de invitación</h3>
 
             <p>
               <strong>
@@ -82,7 +82,7 @@
             </p>
 
             <p>
-              Comparte este codigo con los jugadores
+              Compartí este código con los jugadores
               que quieras invitar a tu campaña.
             </p>
 
@@ -97,7 +97,7 @@
         <h2>Estado de la campaña</h2>
 
         <p class="status-description">
-          Como Dungeon Master, puedes cambiar
+          Como Dungeon Master, podés cambiar
           el estado de tu campaña.
         </p>
 
@@ -109,9 +109,7 @@
 
           <select
             id="campaignStatus"
-            [ngModel]="selectedStatus()"
-            (ngModelChange)="selectedStatus.set($event)"
-            [disabled]="isSaving()"
+            [formField]="statusForm.status"
           >
             <option value="ACTIVE">Activa</option>
             <option value="PAUSED">Pausada</option>
@@ -136,7 +134,7 @@
           type="button"
           class="status-button"
           [disabled]="isSaving() ||
-            selectedStatus() === currentCampaign.status"
+            statusModel().status === currentCampaign.status"
           (click)="saveStatus()"
         >
           {{ isSaving() ? 'Guardando...' : 'Guardar estado' }}
@@ -172,7 +170,7 @@
       @if (members().length === 0) {
 
         <div class="detail-message">
-          Todavia no hay miembros registrados.
+          Todavía no hay miembros registrados.
         </div>
 
       } @else {
@@ -194,7 +192,7 @@
                 <p>{{ member.email }}</p>
 
                 <span class="join-date">
-                  Se unio:
+                  Se unió:
                   {{ member.joinDate | date: 'dd/MM/yyyy' }}
                 </span>
 

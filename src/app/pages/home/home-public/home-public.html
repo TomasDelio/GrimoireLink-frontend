@@ -14,10 +14,32 @@
         ¿Nunca jugaste? Abajo te contamos qué es D&amp;D y cómo se juega, con datos del manual
         oficial.
       </p>
-      <div class="home-actions">
-        <a class="primary-button" routerLink="/register">Crear cuenta</a>
-        <a class="outline-button" routerLink="/login">Iniciar sesión</a>
-      </div>
+        <div class="home-actions">
+
+          @if (isLoggedIn()) {
+
+            <a class="primary-button" routerLink="/campanias">
+              Mis campanas
+            </a>
+
+            <a class="outline-button" routerLink="/personajes">
+              Mis personajes
+            </a>
+
+          } @else {
+
+            <a class="primary-button" routerLink="/register">
+              Crear cuenta
+            </a>
+
+            <a class="outline-button" routerLink="/login">
+              Iniciar sesion
+            </a>
+
+          }
+
+        </div>
+
     </div>
 
     <!-- : reemplazar por la  del d20 -->
@@ -256,7 +278,19 @@
         <h2 id="cta-title">¿Listo para tirar iniciativa?</h2>
         <p>Así se juega con GrimoireLink:</p>
       </div>
-      <a class="primary-button" routerLink="/register">Crear cuenta</a>
+      @if (isLoggedIn()) {
+
+        <a class="primary-button" routerLink="/campanias">
+          Ver mis campañas
+        </a>
+
+      } @else {
+
+        <a class="primary-button" routerLink="/register">
+          Crear cuenta
+        </a>
+
+      }
     </div>
     <ol class="steps">
       @for (step of steps; track step.title; let i = $index) {

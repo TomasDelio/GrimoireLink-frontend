@@ -3,7 +3,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { form, FormField } from '@angular/forms/signals';
 
 import { Dndlinkservice } from '../../../core/services/dndlinkservice';
-import { ItemType } from '../../features/data-access/character.model';
+import { ItemType } from '../../data-access/character.model';
 
 export interface PickedItem {
   itemIndex: string;

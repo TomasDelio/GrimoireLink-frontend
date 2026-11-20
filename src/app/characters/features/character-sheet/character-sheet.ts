@@ -1,8 +1,8 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CharacterResponse } from '../data-access/character.model';
+import { CharacterResponse } from '../../data-access/character.model';
 import { CampaignContextService } from '../../../campaigns/data-access/campaign-context-service';
-import { CharacterService } from '../data-access/character-service';
+import { CharacterService } from '../../data-access/character-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DndClass, DndRace } from '../../../core/models/dndlinks';

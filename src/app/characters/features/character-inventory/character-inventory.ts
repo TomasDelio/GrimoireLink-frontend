@@ -3,8 +3,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { form, FormField, min, required } from '@angular/forms/signals';
 import { firstValueFrom, Observable } from 'rxjs';
 
-import { CharacterService } from '../data-access/character-service';
-import { CharacterItem, CharacterResponse } from '../data-access/character.model';
+import { CharacterService } from '../../data-access/character-service';
+import { CharacterItem, CharacterResponse } from '../../data-access/character.model';
 import { ItemPicker, PickedItem } from '../../ui/item-picker/item-picker';
 
 @Component({
