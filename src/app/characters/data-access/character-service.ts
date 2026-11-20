@@ -11,6 +11,10 @@ export class CharacterService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiURL}/characters`;
 
+  getByCampaign(campaignId: string): Observable<CharacterResponse[]> {
+    return this.http.get<CharacterResponse[]>(this.apiUrl, { params: { campaignId } });
+  }
+
   getById(characterId: string,campaignId: string): Observable<CharacterResponse> {
     return this.http.get<CharacterResponse>(`${this.apiUrl}/${characterId}`,
         {params: {campaignPublicId: campaignId}});

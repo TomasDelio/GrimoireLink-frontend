@@ -108,3 +108,9 @@ export interface CatalogItem {
 export interface BackgroundCatalogItem extends CatalogItem {
   description: string;
 }
+
+export const CHARACTER_STATUS_LABELS: Record<CharacterResponse['status'], string> = {
+  ALIVE: 'Vivo',
+  UNCONSCIOUS: 'Inconsciente',
+  DEAD: 'Muerto',
+};

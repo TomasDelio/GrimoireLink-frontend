@@ -33,7 +33,9 @@ export const routes: Routes = [
           },
           {
             path: 'personajes',
-            loadComponent: () => import('./pages/characters/characters').then((m) => m.Characters),
+            loadComponent: () =>
+              import('./characters/features/character-list/character-list')
+                .then(m => m.CharacterList),
           },
           {
             // Debe ir antes de 'personajes/:characterId' para que "nuevo" no se tome como id.
