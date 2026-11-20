@@ -392,7 +392,14 @@
 
             <h2>Inventario</h2>
 
-            <!-- TODO: Connect inventory summary. -->
+            <p class="section-description">
+              Oro: {{ currentCharacter.gold }} po
+            </p>
+
+            <p class="section-description">
+              Objetos: {{ inventorySummary().total }}
+              ({{ inventorySummary().equipped }} equipados)
+            </p>
 
             <button
               type="button"
@@ -414,79 +421,12 @@
 
     @if (activeTab() === 'spells') {
 
-      <section class="sheet-card tab-panel">
-
-        <h2>Hechizos del personaje</h2>
-
-        @if (currentCharacter.spellSlots; as slots) {
-
-          <div class="spells-summary">
-
-            <div>
-              <span>Trucos conocidos</span>
-
-              <strong>
-                {{ slots.cantrips_known }}
-              </strong>
-            </div>
-
-            <div>
-              <span>Conjuros conocidos permitidos</span>
-
-              <strong>
-                {{ slots.spells_known }}
-              </strong>
-            </div>
-
-          </div>
-
-          <h3>Espacios por nivel</h3>
-
-          <div class="spell-slots">
-
-            @for (slot of spellLevels(); track slot.level) {
-
-              <div class="spell-slot">
-
-                <span>Nivel {{ slot.level }}</span>
-
-                <strong>
-                  {{ slot.slots }}
-                </strong>
-
-              </div>
-
-            }
-
-          </div>
-
-        }
-
-        <h3>Conjuros registrados</h3>
-
-        @for (
-          spell of currentCharacter.knowSpells ?? [];
-          track spell.publicId
-        ) {
-
-          <div class="spell-item">
-
-            <strong>
-              {{ spell.name }}
-            </strong>
-
-            <span
-              class="spell-status"
-              [class.prepared]="spell.prepared"
-            >
-              {{ spell.prepared ? 'Preparado' : 'No preparado' }}
-            </span>
-
-          </div>
-
-        }
-
-      </section>
+      <app-character-spells
+        [character]="currentCharacter"
+        [classIndex]="classDetails()?.index ?? null"
+        [canEdit]="canEdit()"
+        (updated)="onCharacterUpdated($event)"
+      />
 
     }
 
@@ -494,13 +434,11 @@
 
     @if (activeTab() === 'inventory') {
 
-      <section class="sheet-card tab-panel">
-
-        <h2>Inventario</h2>
-
-        <!-- TODO: Integrate character inventory component. -->
-
-      </section>
+      <app-character-inventory
+        [character]="currentCharacter"
+        [canEdit]="canEdit()"
+        (updated)="onCharacterUpdated($event)"
+      />
 
     }
   }

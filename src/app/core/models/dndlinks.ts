@@ -6,6 +6,10 @@ export interface DndReference {
   url: string;
 }
 
+export interface DndSpellReference extends DndReference {
+  level: number;
+}
+
 export interface DndReferenceList {
   count: number;
   results: DndReference[];
@@ -40,6 +44,26 @@ export interface DndClass {
   proficiency_choices?: DndProficiencyChoice[];
   subclasses?: DndReference[];
   spellcasting?: { level: number; spellcasting_ability: DndReference };
+}
+
+// /classes/{index}/levels/{level}: solo lo que usa la app.
+export interface DndClassLevel {
+  level: number;
+  spellcasting?: DndSpellcasting;
+}
+
+export interface DndSpellcasting {
+  cantrips_known?: number;
+  spells_known?: number;
+  spell_slots_level_1?: number;
+  spell_slots_level_2?: number;
+  spell_slots_level_3?: number;
+  spell_slots_level_4?: number;
+  spell_slots_level_5?: number;
+  spell_slots_level_6?: number;
+  spell_slots_level_7?: number;
+  spell_slots_level_8?: number;
+  spell_slots_level_9?: number;
 }
 
 export interface DndProficiencyChoice {

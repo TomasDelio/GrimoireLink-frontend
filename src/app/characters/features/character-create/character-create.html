@@ -264,36 +264,115 @@
             <span>Paso 3 de 4</span>
           </header>
 
-          <div class="field-grid">
-            <div class="field">
-              <label for="gold">Oro inicial (po)</label>
-              <input id="gold" type="number" [formField]="characterForm.gold" />
-              @if (characterForm.gold().touched() && characterForm.gold().invalid()) {
-                @for (error of characterForm.gold().errors(); track error.kind) {
+          <!-- Solapas: Inventario / Hechizos -->
+
+          <div class="equipment-tabs" role="tablist" aria-label="Equipo inicial">
+            <button
+              type="button"
+              role="tab"
+              [class.active]="equipmentTab() === 'inventory'"
+              [attr.aria-selected]="equipmentTab() === 'inventory'"
+              (click)="selectEquipmentTab('inventory')"
+            >
+              Inventario
+              <span class="tab-count">{{ draftModel().items.length }}</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              [class.active]="equipmentTab() === 'spells'"
+              [class.invalid]="characterForm.spells().invalid()"
+              [attr.aria-selected]="equipmentTab() === 'spells'"
+              (click)="selectEquipmentTab('spells')"
+            >
+              Hechizos
+              <span class="tab-count">{{ draftModel().spells.length }}</span>
+            </button>
+          </div>
+
+          <!-- Solapa Inventario -->
+
+          @if (equipmentTab() === 'inventory') {
+            <div class="field-grid">
+              <div class="field">
+                <label for="gold">Oro inicial (po)</label>
+                <input id="gold" type="number" [formField]="characterForm.gold" />
+                @if (characterForm.gold().touched() && characterForm.gold().invalid()) {
+                  @for (error of characterForm.gold().errors(); track error.kind) {
+                    <p class="field-error">{{ error.message }}</p>
+                  }
+                }
+              </div>
+            </div>
+
+            <h3>Objetos iniciales</h3>
+
+            <div class="picked-list">
+              @for (item of draftModel().items; track item.itemIndex) {
+                <span class="picked">
+                  {{ item.name }}
+                  <button type="button" aria-label="Quitar objeto" (click)="removeDraftItem(item.itemIndex)">×</button>
+                </span>
+              } @empty {
+                <p class="field-note">Todavia no elegiste objetos. Es opcional.</p>
+              }
+            </div>
+
+            <app-item-picker
+              [ownedIndexes]="pickedItemIndexes()"
+              (picked)="addDraftItem($event)"
+            />
+          }
+
+          <!-- Solapa Hechizos -->
+
+          @if (equipmentTab() === 'spells') {
+            @if (canCastNow()) {
+              <p class="field-note">
+                Trucos {{ pickedCantrips() }} / {{ cantripsAllowed() }}
+                @if (spellsAllowed()) {
+                  · Conjuros {{ pickedLeveled() }} / {{ spellsAllowed() }}
+                } @else {
+                  · Conjuros sin tope (tu clase los prepara)
+                }
+              </p>
+
+              <div class="picked-list">
+                @for (spell of draftModel().spells; track spell.index) {
+                  <span class="picked">
+                    {{ spell.name }} <small>{{ spellLevelLabel(spell.level) }}</small>
+                    <button type="button" aria-label="Quitar hechizo" (click)="removeDraftSpell(spell.index)">×</button>
+                  </span>
+                } @empty {
+                  <p class="field-note">Todavia no elegiste hechizos. Es opcional.</p>
+                }
+              </div>
+
+              @if (characterForm.spells().invalid()) {
+                @for (error of characterForm.spells().errors(); track error.kind) {
                   <p class="field-error">{{ error.message }}</p>
                 }
               }
-            </div>
-          </div>
 
-          <div class="placeholder-box">
-            <strong>Inventario</strong>
-            <p>
-              Pendiente de diseno. Los objetos se agregan con
-              <code>POST /characters/{{ '{' }}id{{ '}' }}/items</code> una vez creado el personaje.
-            </p>
-          </div>
-
-          @if (isCaster()) {
-            <div class="placeholder-box">
-              <strong>Hechizos</strong>
-              <p>
-                {{ selectedClass()?.name }} lanza conjuros
-                ({{ classDetails.value()?.spellcasting?.spellcasting_ability?.name }}).
-                Pendiente de diseno. Se agregan con
-                <code>POST /characters/{{ '{' }}id{{ '}' }}/spell</code> una vez creado.
+              <app-spell-picker
+                [spells]="classSpells.value() ?? []"
+                [loading]="classSpells.isLoading()"
+                [failed]="!!classSpells.error()"
+                [maxSpellLevel]="maxSpellLevel()"
+                [allowCantrips]="cantripsAllowed() > 0"
+                [cantripLimitReached]="cantripLimitReached()"
+                [spellLimitReached]="spellLimitReached()"
+                [excludedNames]="pickedSpellNames()"
+                (picked)="addDraftSpell($event)"
+              />
+            } @else if (classLevel.isLoading()) {
+              <p class="field-note">Cargando conjuros de la clase...</p>
+            } @else {
+              <p class="field-note">
+                {{ selectedClass()?.name ?? 'Tu clase' }} no lanza conjuros en nivel {{ draftModel().level }}.
               </p>
-            </div>
+            }
           }
         </section>
       }
@@ -318,6 +397,20 @@
             <dt>Trasfondo</dt><dd>{{ selectedBackground()?.name }}</dd>
             <dt>Nivel</dt><dd>{{ draftModel().level }}</dd>
             <dt>Oro</dt><dd>{{ draftModel().gold }} po</dd>
+            <dt>Objetos</dt>
+            <dd>
+              @for (item of draftModel().items; track item.itemIndex; let last = $last) {
+                {{ item.name }}@if (!last) {, }
+              } @empty { — }
+            </dd>
+            @if (canCastNow()) {
+              <dt>Hechizos</dt>
+              <dd>
+                @for (spell of draftModel().spells; track spell.index; let last = $last) {
+                  {{ spell.name }}@if (!last) {, }
+                } @empty { — }
+              </dd>
+            }
           </dl>
 
           <div class="review-abilities">
@@ -353,6 +446,10 @@
         @if (currentStep() < steps.length) {
           <button type="button" class="primary-button" (click)="next()">
             Continuar: {{ steps[currentStep()].label }} →
+          </button>
+        } @else if (createdCharacterId()) {
+          <button type="button" class="primary-button" (click)="goToCreatedCharacter()">
+            Ir a la ficha →
           </button>
         } @else {
           <button

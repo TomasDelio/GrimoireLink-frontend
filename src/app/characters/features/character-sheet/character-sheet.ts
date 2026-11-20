@@ -8,6 +8,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DndClass, DndRace } from '../../../core/models/dndlinks';
 import { Dndlinkservice } from '../../../core/services/dndlinkservice';
 import { catchError, forkJoin, of, switchMap } from 'rxjs';
+import { UserService } from '../../../auth/data-access/user-service';
+import { CharacterSpells } from '../character-spells/character-spells';
+import { CharacterInventory } from '../character-inventory/character-inventory';
 
 
 type SheetTab = 'sheet' | 'spells' | 'inventory';
@@ -24,13 +27,8 @@ interface SavingThrow extends Ability {
   bonus: number | null;
 }
 
-interface SpellLevel {
-  level: number;
-  slots: number;
-}
-
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, CharacterSpells, CharacterInventory],
   selector: 'app-character-sheet',
   styleUrl: './character-sheet.css',
   templateUrl: './character-sheet.html',
@@ -74,6 +72,47 @@ export class CharacterSheet {
     this.queryParams().get('campaignId') ??
     this.campaignContext.selectedId()
   );
+
+  private readonly currentUser = toSignal(
+    inject(UserService).getCurrentUser().pipe(catchError(() => of(null))),
+    { initialValue: null }
+  );
+
+  // Edita el dueno del personaje o el DM de la campana.
+  // El backend solo valida membresia, esto es control de interfaz.
+  readonly canEdit = computed(() => {
+    const character = this.character();
+    const user = this.currentUser();
+
+    if (!character || !user) {
+      return false;
+    }
+
+    const isDungeonMaster =
+      this.campaignContext.selectedId() === this.campaignId() &&
+      this.campaignContext.isRealDungeonMaster();
+
+    return character.ownerPublicId === user.publicId || isDungeonMaster;
+  });
+
+  // Nombres de raza y clase: el efecto de la D&D API solo se re-ejecuta si cambian,
+  // no cada vez que se actualiza el personaje (hechizos, items, oro).
+  private readonly raceName = computed(() =>
+    this.character()?.race.trim().toLowerCase() ?? null
+  );
+
+  private readonly className = computed(() =>
+    this.character()?.characterClass.trim().toLowerCase() ?? null
+  );
+
+  readonly inventorySummary = computed(() => {
+    const items = this.character()?.items ?? [];
+
+    return {
+      total: items.length,
+      equipped: items.filter(item => item.equipped).length,
+    };
+  });
 
   readonly campaignName = computed(() =>
     this.campaignContext.campaigns().find(
@@ -180,33 +219,6 @@ export class CharacterSheet {
       .length
   );
 
-  readonly spellLevels = computed<SpellLevel[]>(() => {
-    const slots = this.character()?.spellSlots;
-
-    if (!slots) {
-      return [];
-    }
-
-    const values = [
-      slots.spell_slots_level_1,
-      slots.spell_slots_level_2,
-      slots.spell_slots_level_3,
-      slots.spell_slots_level_4,
-      slots.spell_slots_level_5,
-      slots.spell_slots_level_6,
-      slots.spell_slots_level_7,
-      slots.spell_slots_level_8,
-      slots.spell_slots_level_9
-    ];
-
-    return values
-      .map((count, index) => ({
-        level: index + 1,
-        slots: count
-      }))
-      .filter(item => item.slots > 0);
-  });
-
   constructor() {
     // Load character from Spring Boot
 
@@ -262,17 +274,15 @@ export class CharacterSheet {
     // Load race and class details from D&D API
 
     effect((onCleanup) => {
-      const character = this.character();
+      const raceName = this.raceName();
+      const className = this.className();
 
       this.raceDetails.set(null);
       this.classDetails.set(null);
 
-      if (!character) {
+      if (raceName === null || className === null) {
         return;
       }
-
-      const raceName = character.race.trim().toLowerCase();
-      const className = character.characterClass.trim().toLowerCase();
 
       const raceRequest = this.dndService.getList('races').pipe(
         switchMap(races => {
@@ -321,6 +331,11 @@ export class CharacterSheet {
 
   selectTab(tab: SheetTab): void {
     this.activeTab.set(tab);
+  }
+
+  // Los componentes de hechizos e inventario devuelven la ficha actualizada del backend.
+  onCharacterUpdated(character: CharacterResponse): void {
+    this.character.set(character);
   }
 
   retry(): void {

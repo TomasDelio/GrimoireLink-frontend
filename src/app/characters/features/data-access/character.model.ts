@@ -60,6 +60,17 @@ export interface CharacterResponse {
   items: CharacterItem[];
   spellSlots: SpellSlots | null;
   summary: string | null;
+
+  ownerPublicId: string;
+  ownerName: string;
+}
+
+export type ItemType = 'EQUIPMENT' | 'MAGIC_ITEM';
+
+// Body de POST /api/characters/{id}/items
+export interface AddItemRequest {
+  itemIndex: string;
+  itemType: ItemType;
 }
 
 export interface CharacterItem {

@@ -7,10 +7,13 @@ import { catchError, firstValueFrom, of } from 'rxjs';
 
 import { CampaignContextService } from '../../../campaigns/data-access/campaign-context-service';
 import { Dndlinkservice } from '../../../core/services/dndlinkservice';
-import { DndClass, DndRace } from '../../../core/models/dndlinks';
+import { DndClass, DndRace, DndSpellReference } from '../../../core/models/dndlinks';
 import { CatalogService } from '../data-access/catalog-service';
 import { CharacterService } from '../data-access/character-service';
 import { CharacterCreateRequest } from '../data-access/character.model';
+import { ItemPicker, PickedItem } from '../../ui/item-picker/item-picker';
+import { SpellPicker } from '../../ui/spell-picker/spell-picker';
+import { maxSpellLevel, spellLevelLabel } from '../../ui/spell-rules';
 import {
   ABILITIES,
   AbilityKey,
@@ -40,8 +43,12 @@ interface CharacterDraft {
   scores: AbilityScores;
   skills: string[];
   gold: number;
+  items: PickedItem[];
+  spells: DndSpellReference[];
   campaignId: string;
 }
+
+type EquipmentTab = 'inventory' | 'spells';
 
 interface WizardStep {
   number: number;
@@ -66,7 +73,7 @@ const STEPS: WizardStep[] = [
 const SUBCLASS_LEVEL = 3;
 
 @Component({
-  imports: [FormField, FormRoot, RouterLink],
+  imports: [FormField, FormRoot, RouterLink, ItemPicker, SpellPicker],
   selector: 'app-character-create',
   styleUrl: './character-create.css',
   templateUrl: './character-create.html',
@@ -86,10 +93,16 @@ export class CharacterCreate {
   protected readonly scoreMethods = SCORE_METHODS;
   protected readonly pointBuyBudget = POINT_BUY_BUDGET;
   protected readonly formatBonus = formatBonus;
+  protected readonly spellLevelLabel = spellLevelLabel;
 
   readonly currentStep = signal(1);
   readonly maxReachedStep = signal(1);
+  readonly equipmentTab = signal<EquipmentTab>('inventory');
   readonly submitError = signal('');
+
+  // Si el personaje se creo pero fallo algun objeto o hechizo, queda el id para ir a la ficha.
+  readonly createdCharacterId = signal<string | null>(null);
+  readonly createdCampaignId = signal<string | null>(null);
   readonly lastSavedAt = signal<Date | null>(null);
 
   // Catalogos (backend)
@@ -139,6 +152,8 @@ export class CharacterCreate {
           ? undefined
           : { kind: 'skills', message: `Elige ${choose} competencias de clase.` };
       });
+
+      validate(path.spells, ({ value }) => this.validateSpells(value()));
     },
     {
       submission: {
@@ -157,6 +172,20 @@ export class CharacterCreate {
   readonly classDetails = rxResource({
     params: () => this.draftModel().classIndex || undefined,
     stream: ({ params }) => this.dndService.getOne<DndClass>('classes', params),
+  });
+
+  // Espacios de conjuro de la clase en el nivel elegido.
+  readonly classLevel = rxResource({
+    params: () => {
+      const { classIndex, level } = this.draftModel();
+      return classIndex && level >= 1 && level <= 20 ? { classIndex, level } : undefined;
+    },
+    stream: ({ params }) => this.dndService.getClassLevel(params.classIndex, params.level),
+  });
+
+  readonly classSpells = rxResource({
+    params: () => this.draftModel().classIndex || undefined,
+    stream: ({ params }) => this.dndService.getClassSpells(params),
   });
 
   // Derivados para la vista
@@ -270,7 +299,37 @@ export class CharacterCreate {
     return feet ? feetToMeters(feet) : null;
   });
 
-  readonly isCaster = computed(() => !!this.classDetails.value()?.spellcasting);
+  // Hechizos iniciales
+
+  readonly spellcasting = computed(() => this.classLevel.value()?.spellcasting ?? null);
+
+  readonly maxSpellLevel = computed(() => maxSpellLevel(this.spellcasting()));
+
+  readonly cantripsAllowed = computed(() => this.spellcasting()?.cantrips_known ?? 0);
+
+  // 0 = clase que prepara (mago, clerigo...): sin tope de conocidos.
+  readonly spellsAllowed = computed(() => this.spellcasting()?.spells_known ?? 0);
+
+  // Puede lanzar algo en el nivel elegido (el explorador nivel 1, por ejemplo, todavia no).
+  readonly canCastNow = computed(() => this.maxSpellLevel() > 0 || this.cantripsAllowed() > 0);
+
+  readonly pickedCantrips = computed(() =>
+    this.draftModel().spells.filter(spell => spell.level === 0).length
+  );
+
+  readonly pickedLeveled = computed(() =>
+    this.draftModel().spells.filter(spell => spell.level > 0).length
+  );
+
+  readonly cantripLimitReached = computed(() => this.pickedCantrips() >= this.cantripsAllowed());
+
+  readonly spellLimitReached = computed(() =>
+    this.spellsAllowed() > 0 && this.pickedLeveled() >= this.spellsAllowed()
+  );
+
+  readonly pickedSpellNames = computed(() => this.draftModel().spells.map(spell => spell.name));
+
+  readonly pickedItemIndexes = computed(() => this.draftModel().items.map(item => item.itemIndex));
 
   readonly isDungeonMasterOfSelection = computed(() =>
     this.draftModel().campaignId === this.campaignContext.selectedId() &&
@@ -311,6 +370,26 @@ export class CharacterCreate {
       }
     });
 
+    // Si cambia la clase o el nivel, se descartan hechizos que ya no corresponden.
+    effect(() => {
+      // Sin datos cargados no se toca nada (evita borrar un borrador restaurado).
+      if (this.classSpells.value() === undefined || this.classLevel.value() === undefined) {
+        return;
+      }
+
+      const classSpellNames = new Set((this.classSpells.value() ?? []).map(spell => spell.name));
+      const spells = this.draftModel().spells;
+
+      const valid = spells.filter(spell =>
+        classSpellNames.has(spell.name) &&
+        (spell.level === 0 ? this.cantripsAllowed() > 0 : spell.level <= this.maxSpellLevel())
+      );
+
+      if (valid.length !== spells.length) {
+        this.characterForm.spells().value.set(valid);
+      }
+    });
+
     // Autoguardado del borrador.
     effect(() => {
       const draft = this.draftModel();
@@ -337,6 +416,12 @@ export class CharacterCreate {
 
     if (!this.fieldsValid(step)) {
       this.stepFields(step).forEach(field => field().markAsTouched());
+
+      // El error de hechizos solo se ve en su solapa.
+      if (step === 3 && this.characterForm.spells().invalid()) {
+        this.equipmentTab.set('spells');
+      }
+
       return;
     }
 
@@ -376,6 +461,41 @@ export class CharacterCreate {
     return !skills.includes(index) && skills.length >= choose;
   }
 
+  // Equipo y hechizos iniciales (se envian despues de crear el personaje)
+
+  selectEquipmentTab(tab: EquipmentTab): void {
+    this.equipmentTab.set(tab);
+  }
+
+  addDraftItem(item: PickedItem): void {
+    this.characterForm.items().value.update(items => [...items, item]);
+  }
+
+  removeDraftItem(itemIndex: string): void {
+    this.characterForm.items().value.update(items =>
+      items.filter(item => item.itemIndex !== itemIndex)
+    );
+  }
+
+  addDraftSpell(spell: DndSpellReference): void {
+    const { index, name, level } = spell;
+
+    this.characterForm.spells().value.update(spells => [...spells, { index, name, level, url: '' }]);
+    this.characterForm.spells().markAsTouched();
+  }
+
+  removeDraftSpell(index: string): void {
+    this.characterForm.spells().value.update(spells =>
+      spells.filter(spell => spell.index !== index)
+    );
+  }
+
+  goToCreatedCharacter(): void {
+    this.router.navigate(['/personajes', this.createdCharacterId()], {
+      queryParams: { campaignId: this.createdCampaignId() },
+    });
+  }
+
   // Borrador
 
   saveAndExit(): void {
@@ -413,19 +533,53 @@ export class CharacterCreate {
       gold: draft.gold,
     };
 
+    let createdId: string;
+
     try {
       const created = await firstValueFrom(
         this.characterService.create(request, draft.campaignId)
       );
-
-      this.clearDraft();
-
-      await this.router.navigate(['/personajes', created.publicId], {
-        queryParams: { campaignId: draft.campaignId },
-      });
+      createdId = created.publicId;
     } catch (error) {
       this.submitError.set(this.getErrorMessage(error));
+      return;
     }
+
+    // El personaje ya existe: el borrador no se reutiliza para no crearlo dos veces.
+    this.clearDraft();
+    this.createdCharacterId.set(createdId);
+    this.createdCampaignId.set(draft.campaignId);
+
+    // El backend no recibe objetos ni hechizos al crear: se agregan uno por uno.
+    const failed: string[] = [];
+
+    for (const item of draft.items) {
+      try {
+        await firstValueFrom(this.characterService.addItem(createdId, {
+          itemIndex: item.itemIndex,
+          itemType: item.itemType,
+        }));
+      } catch {
+        failed.push(item.name);
+      }
+    }
+
+    for (const spell of draft.spells) {
+      try {
+        await firstValueFrom(this.characterService.addSpell(createdId, spell.index));
+      } catch {
+        failed.push(spell.name);
+      }
+    }
+
+    if (failed.length) {
+      this.submitError.set(
+        `El personaje se creo, pero no se pudo agregar: ${failed.join(', ')}. Puedes agregarlo desde la ficha.`
+      );
+      return;
+    }
+
+    this.goToCreatedCharacter();
   }
 
   private getErrorMessage(error: unknown): string {
@@ -460,7 +614,7 @@ export class CharacterCreate {
       case 2:
         return [f.scores, f.skills];
       case 3:
-        return [f.gold];
+        return [f.gold, f.spells];
       default:
         return [f.campaignId];
     }
@@ -500,6 +654,21 @@ export class CharacterCreate {
     return undefined;
   }
 
+  private validateSpells(spells: DndSpellReference[]) {
+    const cantrips = spells.filter(spell => spell.level === 0).length;
+    const leveled = spells.length - cantrips;
+
+    if (cantrips > this.cantripsAllowed()) {
+      return { kind: 'spells', message: `Puedes elegir hasta ${this.cantripsAllowed()} trucos.` };
+    }
+
+    if (this.spellsAllowed() > 0 && leveled > this.spellsAllowed()) {
+      return { kind: 'spells', message: `Puedes elegir hasta ${this.spellsAllowed()} conjuros.` };
+    }
+
+    return undefined;
+  }
+
   private emptyDraft(): CharacterDraft {
     return {
       name: '',
@@ -512,6 +681,8 @@ export class CharacterCreate {
       scores: defaultScores('standard'),
       skills: [],
       gold: 0,
+      items: [],
+      spells: [],
       campaignId: '',
     };
   }
