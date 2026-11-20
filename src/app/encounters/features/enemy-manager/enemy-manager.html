@@ -26,8 +26,7 @@
         id="monster-search"
         type="text"
         placeholder="Ej. Goblin, Dragon, Skeleton..."
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
+        [formField]="searchForm.term"
       />
 
       <div class="monster-results">
