@@ -1,5 +1,4 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CampaignContextService } from '../../campaigns/data-access/campaign-context-service';
 import { Campaign } from '../../campaigns/data-access/campaign.model';
@@ -10,7 +9,7 @@ import { DatePipe } from '@angular/common';
 type ViewMode='Dungeon Master'| 'Player';
 
 @Component({
-  imports: [RouterLink, RouterLinkActive, FormsModule, DatePipe],
+  imports: [RouterLink, RouterLinkActive, DatePipe],
   selector: 'app-sidebar',
   styleUrl: './sidebar.css',
   templateUrl: './sidebar.html',

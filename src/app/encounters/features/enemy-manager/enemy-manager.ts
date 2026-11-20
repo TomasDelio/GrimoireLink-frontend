@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import {Component,computed,effect,inject,input,OnInit,signal,untracked,} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { Monster, MonsterReference } from '../../../core/models/monster';
 import { MonsterService } from '../../../core/services/monster-service';
@@ -9,7 +9,7 @@ import { Encounter } from '../../data-access/encounter.model';
 
 @Component({
   selector: 'app-enemy-manager',
-  imports: [FormsModule],
+  imports: [FormField],
   templateUrl: './enemy-manager.html',
   styleUrl: './enemy-manager.css',
 })
@@ -24,7 +24,8 @@ export class EnemyManager {
   readonly catalog = signal<MonsterReference[]>([]);
   readonly encounter = signal<Encounter | null>(null);
 
-  readonly searchTerm = signal('');
+  protected readonly search = signal({ term: '' });
+  protected readonly searchForm = form(this.search);
   readonly selectedMonster = signal<MonsterReference | null>(null);
 
   readonly isLoading = signal(false);
@@ -32,7 +33,7 @@ export class EnemyManager {
   readonly errorMessage = signal('');
 
   readonly filteredMonsters = computed(() => {
-    const search = this.searchTerm().trim().toLowerCase();
+    const search = this.search().term.trim().toLowerCase();
 
     return this.catalog()
       .filter(monster =>
@@ -135,7 +136,7 @@ export class EnemyManager {
 
       this.encounter.set(updated);
       this.selectedMonster.set(null);
-      this.searchTerm.set('');
+      this.search.set({ term: '' });
     } catch (error) {
       this.errorMessage.set(
         this.getErrorMessage(error, 'No se pudo agregar el monstruo.')

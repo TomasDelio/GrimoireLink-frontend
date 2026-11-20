@@ -117,18 +117,23 @@
       <select
         id="currentCampaign"
         class="campaign-select"
-        [ngModel]="campaignContext.selectedId() ?? ''"
-        (ngModelChange)="campaignContext.selectCampaign($event)"
+        #campaignSelect
+        (change)="campaignContext.selectCampaign(campaignSelect.value)"
       >
 
-        <option value="">Seleccionar campaña</option>
+        <option value="" [selected]="!campaignContext.selectedId()">
+          Seleccionar campaña
+        </option>
 
         @for (
           campaign of campaignContext.campaigns();
           track campaign.publicId
         ) {
 
-          <option [value]="campaign.publicId">
+          <option
+            [value]="campaign.publicId"
+            [selected]="campaign.publicId === campaignContext.selectedId()"
+          >
             {{ campaign.name }}
           </option>
 

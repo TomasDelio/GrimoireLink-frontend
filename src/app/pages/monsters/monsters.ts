@@ -2,12 +2,12 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MonsterService } from '../../core/services/monster-service';
 import { catchError, forkJoin, of, Subscription } from 'rxjs';
 import { MonsterCatalogDetail, MonsterReference } from '../../core/models/monster';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { DndMonster } from '../../core/models/dndlinks';
 import { Dndlinkservice } from '../../core/services/dndlinkservice';
 
 @Component({
-  imports: [FormsModule],
+  imports: [FormField],
   selector: 'app-monsters',
   styleUrl: './monsters.css',
   templateUrl: './monsters.html',
@@ -20,7 +20,8 @@ export class Monsters implements OnInit{
   private catalogSubscription?: Subscription;
 
   readonly monsters = signal<MonsterReference[]>([]);
-  readonly searchTerm = signal('');
+  protected readonly search = signal({ term: '' });
+  protected readonly searchForm = form(this.search);
 
   readonly selectedMonster = signal<MonsterReference | null>(null);
   readonly monsterDetail = signal<MonsterCatalogDetail | null>(null);
@@ -34,7 +35,7 @@ export class Monsters implements OnInit{
   readonly detailError = signal('');
 
   readonly filteredMonsters = computed(() => {
-    const search = this.searchTerm().trim().toLowerCase();
+    const search = this.search().term.trim().toLowerCase();
 
     return this.monsters().filter(monster =>
       monster.name.toLowerCase().includes(search) ||
@@ -135,7 +136,7 @@ export class Monsters implements OnInit{
   }
 
   clearSearch(): void {
-    this.searchTerm.set('');
+    this.search.set({ term: '' });
   }
 
   onImageError(): void {

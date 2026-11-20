@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/data-access/auth-service';
 import { UserService } from '../../auth/data-access/user-service';
 import { UserResponse } from '../../auth/data-access/auth.model';
-import { FormsModule } from '@angular/forms';
+import { form, FormField, maxLength, minLength, required } from '@angular/forms/signals';
 import { CampaignContextService } from '../../campaigns/data-access/campaign-context-service';
 
 
@@ -13,19 +13,19 @@ interface ProfileAvatar {
 }
 
 @Component({
-  imports: [RouterLink,FormsModule],
+  imports: [RouterLink, FormField],
   selector: 'app-header',
   styleUrl: './header.css',
   templateUrl: './header.html',
 })
-export class Header implements OnInit{
+export class Header implements OnInit {
 
   protected readonly auth = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly campaignContext = inject(CampaignContextService);
   private readonly router = inject(Router);
 
-  readonly avatars: ProfileAvatar[] = [
+  protected readonly avatars: ProfileAvatar[] = [
     { id: 'wizard', name: 'Mago' },
     { id: 'witch', name: 'Bruja' },
     { id: 'warlock', name: 'Brujo' },
@@ -43,21 +43,27 @@ export class Header implements OnInit{
     { id: 'kenku', name: 'Kenku' }
   ];
 
-  user = signal<UserResponse | null>(null);
+  private readonly user = signal<UserResponse | null>(null);
 
-  nickname = signal('');
-  nicknameInput = signal('');
+  private readonly nickname = signal('');
+  protected readonly profileModel = signal({ nickname: '' });
 
-  selectedAvatar = signal('wizard');
-  avatarInput = signal('wizard');
+  protected readonly profileForm = form(this.profileModel, (path) => {
+    required(path.nickname, { message: 'Ingresá un nombre de usuario.' });
+    minLength(path.nickname, 3, { message: 'Mínimo 3 caracteres.' });
+    maxLength(path.nickname, 24, { message: 'Máximo 24 caracteres.' });
+  });
 
-  isEditing = signal(false);
+  private readonly selectedAvatar = signal('wizard');
+  protected readonly avatarInput = signal('wizard');
 
-  displayName = computed(() =>
+  protected readonly isEditing = signal(false);
+
+  protected readonly displayName = computed(() =>
     this.nickname() || this.user()?.name || 'Usuario'
   );
 
-  avatarUrl = computed(() =>
+  protected readonly avatarUrl = computed(() =>
     this.getAvatarUrl(this.selectedAvatar())
   );
 
@@ -67,7 +73,7 @@ export class Header implements OnInit{
     }
   }
 
-  loadUser(): void {
+  private loadUser() {
     this.userService.getCurrentUser().subscribe({
       next: user => {
         this.user.set(user);
@@ -96,17 +102,17 @@ export class Header implements OnInit{
     });
   }
 
-  getAvatarUrl(avatarId: string): string {
+  protected getAvatarUrl(avatarId: string) {
     return `/avatars/${avatarId}.png`;
   }
 
-  openEditor(): void {
-    this.nicknameInput.set(this.displayName());
+  protected openEditor() {
+    this.profileModel.set({ nickname: this.displayName() });
     this.avatarInput.set(this.selectedAvatar());
     this.isEditing.set(true);
   }
 
-  selectAvatar(avatarId: string): void {
+  protected selectAvatar(avatarId: string) {
     const exists = this.avatars.some(
       avatar => avatar.id === avatarId
     );
@@ -116,8 +122,8 @@ export class Header implements OnInit{
     }
   }
 
-  saveProfile(): void {
-    const name = this.nicknameInput().trim();
+  protected saveProfile() {
+    const name = this.profileModel().nickname.trim();
     const user = this.user();
 
     if (!user || name.length < 3 || name.length > 24) {
@@ -139,11 +145,11 @@ export class Header implements OnInit{
     this.isEditing.set(false);
   }
 
-  cancelEditing(): void {
+  protected cancelEditing() {
     this.isEditing.set(false);
   }
 
-  logout(): void {
+  protected logout() {
     this.auth.logout();
     this.campaignContext.reset();
 

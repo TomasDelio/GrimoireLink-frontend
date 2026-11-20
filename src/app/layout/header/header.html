@@ -41,7 +41,7 @@
         class="logout-button"
         (click)="logout()"
       >
-        Cerrar sesion
+        Cerrar sesión
       </button>
 
       @if (isEditing()) {
@@ -57,11 +57,8 @@
           <input
             id="nickname"
             type="text"
-            name="nickname"
-            maxlength="24"
             placeholder="Tu nombre de usuario"
-            [ngModel]="nicknameInput()"
-            (ngModelChange)="nicknameInput.set($event)"
+            [formField]="profileForm.nickname"
           />
 
           <p class="profile-hint">
@@ -113,8 +110,7 @@
             <button
               type="button"
               class="save-button"
-              [disabled]="nicknameInput().trim().length < 3 ||
-                          nicknameInput().trim().length > 24"
+              [disabled]="profileForm().invalid()"
               (click)="saveProfile()"
             >
               Guardar cambios
@@ -129,7 +125,7 @@
     } @else {
 
       <a class="login-link" routerLink="/login">
-        Iniciar sesion
+        Iniciar sesión
       </a>
 
     }

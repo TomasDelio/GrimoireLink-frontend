@@ -1,76 +1,67 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { form, FormField, FormRoot, maxLength, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { CampaignContextService } from '../../data-access/campaign-context-service';
 import { CampaignService } from '../../data-access/campaign-service';
 import { CampaignRequest } from '../../data-access/campaign.model';
-import { finalize } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
-import { CampaignContextService } from '../../data-access/campaign-context-service';
 
 @Component({
-  imports: [FormsModule, RouterLink],
+  imports: [FormField, FormRoot, RouterLink],
   selector: 'app-campaign-form',
   styleUrl: './campaign-form.css',
   templateUrl: './campaign-form.html',
 })
 export class CampaignForm {
-
   private readonly campaignService = inject(CampaignService);
-  private readonly router = inject(Router);
   private readonly campaignContext = inject(CampaignContextService);
+  private readonly router = inject(Router);
 
-  campaign: CampaignRequest = {
-    name: '',
-    description: ''
-  };
+  protected readonly errorMessage = signal('');
+  protected readonly campaignModel = signal<CampaignRequest>({ name: '', description: '' });
 
-  isLoading = signal(false);
-  errorMessage = signal('');
+  protected readonly campaignForm = form(
+    this.campaignModel,
+    (path) => {
+      required(path.name, { message: 'Ingresá el nombre de la campaña.' });
+      required(path.description, { message: 'Ingresá una descripción.' });
+      maxLength(path.description, 65535, { message: 'La descripción es demasiado larga.' });
+    },
+    {
+      submission: {
+        action: async (field) => {
+          this.errorMessage.set('');
+          const { name, description } = field().value();
 
-  createCampaign(form: NgForm): void {
-    if (form.invalid || this.isLoading()) {
-      return;
-    }
+          const request: CampaignRequest = {
+            name: name.trim(),
+            description: description.trim(),
+          };
 
-    const data: CampaignRequest = {
-      name: this.campaign.name.trim(),
-      description: this.campaign.description.trim()
-    };
-
-    if (!data.name || !data.description) {
-      this.errorMessage.set('Completa todos los campos.');
-      return;
-    }
-
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-
-    this.campaignService.createCampaign(data)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: () => {
-          this.campaignContext.load();
-          this.router.navigate(['/campanias']);
-        },
-        error: (error: HttpErrorResponse) => {
-          if (error.status === 400) {
-            this.errorMessage.set(
-              'Revisa el nombre y la descripcion.'
-            );
-          } else if (error.status === 401) {
-            this.errorMessage.set(
-              'Tu sesion no es valida. Inicia sesion nuevamente.'
-            );
-          } else if (error.status === 0) {
-            this.errorMessage.set(
-              'No se pudo conectar con el servidor.'
-            );
-          } else {
-            this.errorMessage.set(
-              'No se pudo crear la campana.'
-            );
+          if (!request.name || !request.description) {
+            this.errorMessage.set('Completá todos los campos.');
+            return;
           }
-        }
-      });
+
+          try {
+            await firstValueFrom(this.campaignService.createCampaign(request));
+            this.campaignContext.load();
+            await this.router.navigate(['/campanias']);
+          } catch (error) {
+            this.errorMessage.set(this.getErrorMessage(error));
+          }
+        },
+      },
+    },
+  );
+
+  private getErrorMessage(error: unknown) {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 400) return 'Revisá el nombre y la descripción.';
+      if (error.status === 401) return 'Tu sesión no es válida. Iniciá sesión nuevamente.';
+      if (error.status === 0) return 'No se pudo conectar con el servidor.';
+    }
+    return 'No se pudo crear la campaña.';
   }
 }

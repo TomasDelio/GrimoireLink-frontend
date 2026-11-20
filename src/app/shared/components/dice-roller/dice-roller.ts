@@ -1,60 +1,53 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, signal } from '@angular/core';
+import { form, FormField, max, min, required } from '@angular/forms/signals';
 
 @Component({
-  imports: [FormsModule],
+  imports: [FormField],
   selector: 'app-dice-roller',
   styleUrl: './dice-roller.css',
   templateUrl: './dice-roller.html',
 })
-export class DiceRoller implements OnInit {
+export class DiceRoller {
+  protected readonly diceTypes = [4, 6, 8, 10, 12, 20, 100];
 
-    diceTypes: number[] = [4, 6, 8, 10, 12, 20, 100];
+  protected readonly selectedDice = signal(20);
+  protected readonly results = signal<number[]>([]);
+  protected readonly total = signal<number | null>(null);
+  protected readonly rolledModifier = signal(0);
 
-  selectedDice: number = 20;
-  quantity: number = 1;
-  modifier: number = 0;
+  protected readonly rollModel = signal({ quantity: 1, modifier: 0 });
 
-  results: number[] = [];
-  total: number | null = null;
+  protected readonly rollForm = form(this.rollModel, (path) => {
+    required(path.quantity, { message: 'Ingresá una cantidad.' });
+    min(path.quantity, 1, { message: 'Mínimo 1 dado.' });
+    max(path.quantity, 20, { message: 'Máximo 20 dados.' });
+    required(path.modifier, { message: 'Ingresá un modificador.' });
+    min(path.modifier, -20, { message: 'El mínimo es -20.' });
+    max(path.modifier, 20, { message: 'El máximo es 20.' });
+  });
 
-  ngOnInit(): void {
-    this.selectedDice = 20;
-    this.quantity = 1;
-    this.modifier = 0;
-  }
-
-  rollDice(): void {
-    this.results = [];
-    this.total = null;
-
-    const quantity = Number(this.quantity);
-    const modifier = Number(this.modifier);
-
-    if (
-      !this.diceTypes.includes(this.selectedDice) ||
-      !Number.isInteger(quantity) ||
-      quantity < 1 || quantity > 20 ||
-      !Number.isInteger(modifier) ||
-      modifier < -20 || modifier > 20
-    ) {
+  protected rollDice() {
+    if (this.rollForm().invalid()) {
       return;
     }
 
-    for (let i = 0; i < quantity; i++) {
-      const result = Math.floor(Math.random() * this.selectedDice) + 1;
-      this.results.push(result);
+    const { quantity, modifier } = this.rollModel();
+
+    if (!Number.isInteger(quantity) || !Number.isInteger(modifier)) {
+      return;
     }
 
-    this.total = this.results.reduce(
-      (sum, value) => sum + value, 0
-    ) + modifier;
+    const dice = this.selectedDice();
+    const results = Array.from({ length: quantity }, () => Math.floor(Math.random() * dice) + 1);
+
+    this.results.set(results);
+    this.rolledModifier.set(modifier);
+    this.total.set(results.reduce((sum, value) => sum + value, 0) + modifier);
   }
 
-  selectDice(dice: number): void {
-    this.selectedDice = dice;
-    this.results = [];
-    this.total = null;
+  protected selectDice(dice: number) {
+    this.selectedDice.set(dice);
+    this.results.set([]);
+    this.total.set(null);
   }
-
 }
