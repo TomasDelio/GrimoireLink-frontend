@@ -1,7 +1,7 @@
 import { Service, inject} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
-import { DndAbilityScore,DndClass,DndMonster,DndRace,DndReference,DndReferenceList,DndRule,DndSpell } from '../models/dndlinks';
+import { DndAbilityScore,DndClass,DndClassLevel,DndMonster,DndRace,DndReference,DndReferenceList,DndRule,DndSpell,DndSpellReference } from '../models/dndlinks';
 
 
 const DND_BASE = 'https://www.dnd5eapi.co';
@@ -14,7 +14,9 @@ type DndRes =
   | 'spells'
   | 'rules'
   | 'ability-scores'
-  | 'skills';
+  | 'skills'
+  | 'equipment'
+  | 'magic-items';
 
 @Service()
 export class Dndlinkservice {
@@ -60,6 +62,17 @@ export class Dndlinkservice {
 
   getClasses(): Observable<DndClass[]> {
     return this.getAll<DndClass>('classes');
+  }
+
+  // Lista de hechizos de una clase; cada referencia trae su nivel (0 = truco).
+  getClassSpells(classIndex: string): Observable<DndSpellReference[]> {
+    return this.http
+      .get<{ count: number; results: DndSpellReference[] }>(`${DND_API}/classes/${classIndex}/spells`)
+      .pipe(map((res) => res.results));
+  }
+
+  getClassLevel(classIndex: string, level: number): Observable<DndClassLevel> {
+    return this.http.get<DndClassLevel>(`${DND_API}/classes/${classIndex}/levels/${level}`);
   }
 
   getRandomMonster():Observable<DndMonster>{

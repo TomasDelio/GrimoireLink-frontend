@@ -36,6 +36,13 @@ export const routes: Routes = [
             loadComponent: () => import('./pages/characters/characters').then((m) => m.Characters),
           },
           {
+            // Debe ir antes de 'personajes/:characterId' para que "nuevo" no se tome como id.
+            path: 'personajes/nuevo',
+            loadComponent: () =>
+              import('./characters/features/character-create/character-create')
+                .then(m => m.CharacterCreate),
+          },
+          {
             path: 'personajes/:characterId',
             loadComponent: () =>
               import('./characters/features/character-sheet/character-sheet')

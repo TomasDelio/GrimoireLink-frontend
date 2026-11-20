@@ -350,15 +350,13 @@
   transition: width 0.2s ease;
 }
 
-.combat-footer,
-.spells-summary {
+.combat-footer {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-2);
 }
 
-.combat-footer div,
-.spells-summary div {
+.combat-footer div {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -369,14 +367,12 @@
   text-align: center;
 }
 
-.combat-footer span,
-.spells-summary span {
+.combat-footer span {
   color: var(--color-text-muted);
   font-size: 11px;
 }
 
-.combat-footer strong,
-.spells-summary strong {
+.combat-footer strong {
   font-size: 18px;
 }
 
@@ -419,52 +415,7 @@
   gap: var(--space-2);
 }
 
-/* Spells and Traits */
-
-.tab-panel {
-  min-height: 250px;
-}
-
-.spell-slots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.spell-slot {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-}
-
-.spell-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-
-.spell-item strong {
-  font-size: 13px;
-}
-
-.spell-status {
-  color: var(--color-text-muted);
-  font-size: 11px;
-}
-
-.spell-status.prepared {
-  color: #166534;
-  font-weight: 600;
-}
+/* Traits */
 
 .feature-item {
   padding: var(--space-3);
