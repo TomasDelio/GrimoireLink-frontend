@@ -498,26 +498,23 @@
 
       <section class="panel">
         <header class="panel-header">
-          <h2>Vincular a campana</h2>
+          <h2>Campaña</h2>
         </header>
 
         <div class="field">
-          <label for="campaign">Campana *</label>
-          <select id="campaign" [formField]="characterForm.campaignId">
-            <option value="">Selecciona una campana</option>
-            @for (campaign of campaignContext.campaigns(); track campaign.publicId) {
-              <option [value]="campaign.publicId">{{ campaign.name }}</option>
-            }
-          </select>
-          @if (characterForm.campaignId().touched() && characterForm.campaignId().invalid()) {
-            @for (error of characterForm.campaignId().errors(); track error.kind) {
-              <p class="field-error">{{ error.message }}</p>
-            }
+          @if (campaignContext.selectedCampaign(); as campaign) {
+            <p>Personaje para: <strong>{{ campaign.name }}</strong></p>
+            <p class="field-note">Para crearlo en otra campaña, cambiala desde el menú lateral.</p>
+          } @else {
+            <p class="field-error">
+              No tenés una campaña seleccionada. Elegí una en el menú lateral o
+              <a routerLink="/campanias/unirse">unite a una campaña</a>.
+            </p>
           }
         </div>
 
         @if (isDungeonMasterOfSelection()) {
-          <p class="field-error">Eres el Dungeon Master de esta campana: no puedes crear personajes en ella.</p>
+          <p class="field-error">Sos el Dungeon Master de esta campaña: no podés crear personajes en ella.</p>
         }
 
         @if (!stepValid()[1] || !stepValid()[2]) {

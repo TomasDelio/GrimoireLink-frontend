@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { form, FormField, FormRoot, max, min, required, validate } from '@angular/forms/signals';
 import { catchError, firstValueFrom, of } from 'rxjs';
 
@@ -85,7 +85,6 @@ export class CharacterCreate {
   private readonly catalogService = inject(CatalogService);
   private readonly characterService = inject(CharacterService);
   private readonly dndService = inject(Dndlinkservice);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   protected readonly steps = STEPS;
@@ -133,7 +132,7 @@ export class CharacterCreate {
       required(path.raceIndex, { message: 'Elige un linaje' });
       required(path.classIndex, { message: 'Elige una clase' });
       required(path.backgroundIndex, { message: 'Elige un trasfondo' });
-      required(path.campaignId, { message: 'Elige la campana del personaje' });
+      required(path.campaignId, { message: 'Elegí la campaña del personaje' });
 
       required(path.level, { message: 'Indica el nivel inicial' });
       min(path.level, 1, { message: 'El nivel minimo es 1' });
@@ -344,13 +343,12 @@ export class CharacterCreate {
   } as Record<number, boolean>));
 
   constructor() {
-    // Campana por defecto: query param o la seleccionada en el contexto.
+    // The character always belongs to the active campaign (also after a draft reset).
     effect(() => {
-      const fromQuery = this.route.snapshot.queryParamMap.get('campaignId');
-      const fallback = fromQuery ?? this.campaignContext.selectedId();
+      const campaignId = this.campaignContext.selectedId() ?? '';
 
-      if (!this.draftModel().campaignId && fallback) {
-        this.characterForm.campaignId().value.set(fallback);
+      if (this.draftModel().campaignId !== campaignId) {
+        this.characterForm.campaignId().value.set(campaignId);
       }
     });
 
